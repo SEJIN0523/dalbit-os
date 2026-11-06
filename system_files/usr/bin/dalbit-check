@@ -61,10 +61,4 @@ if [ ${#bat[@]} -gt 0 ]; then
     echo "[노트북]"
     ok "배터리" "$(cat "${bat[0]}/capacity")% ($(cat "${bat[0]}/status"))"
     ok "배터리 보호" "$(dalbit-battery 2>/dev/null | head -1 | sed 's/.*: //')"
-    abm=(/sys/class/drm/card*-eDP-*/amdgpu/panel_power_savings)
-    if [ ${#abm[@]} -gt 0 ]; then
-        ok "화면 절전(ABM)" "레벨 $(cat "${abm[0]}")"
-    else
-        warn "화면 절전(ABM)" "커널 설정 파일 없음"
-    fi
 fi
