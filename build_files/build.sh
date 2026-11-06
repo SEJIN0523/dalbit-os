@@ -185,7 +185,8 @@ chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
 lsinitrd "/usr/lib/modules/$KVER/initramfs.img" > /tmp/initrd.txt
 grep -q 'usr/share/plymouth/themes/dalbit/dalbit.script' /tmp/initrd.txt
 grep -q 'usr/share/plymouth/themes/dalbit/moon.png' /tmp/initrd.txt
-grep -E 'ostree-prepare-root|plymouth/themes/dalbit' /tmp/initrd.txt | head
+grep -q 'plymouth/script.so' /tmp/initrd.txt || { echo "❌ initramfs에 plymouth script 플러그인 없음"; exit 1; }
+grep -E 'ostree-prepare-root|plymouth/themes/dalbit|plymouth/script.so' /tmp/initrd.txt | head -20
 
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)
