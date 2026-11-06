@@ -79,7 +79,16 @@ jobs:
             test -x /usr/bin/dalbit-theme
             grep -q "Dalbit/contents/images/3840x2160.svg" /usr/lib/plasmalogin/defaults.conf
             plymouth-set-default-theme | grep -qx dalbit
-            test -f /usr/share/plymouth/themes/dalbit/moon.png
+            test -f /usr/share/plymouth/themes/dalbit/crescent.png
+            test -f /usr/share/plymouth/themes/dalbit/star.png
+            fc-list : family > /tmp/fc.txt
+            grep -q Pretendard /tmp/fc.txt
+            grep -q D2Coding /tmp/fc.txt
+            fc-match sans-serif | grep -q Pretendard
+            fc-match monospace | grep -q D2Coding
+            grep -q "font=Pretendard" /etc/xdg/kdeglobals
+            grep -q "M124.06 28.08" /usr/share/pixmaps/dalbit-logo.svg
+            if grep -q "<mask" /usr/share/pixmaps/dalbit-logo.svg /usr/share/wallpapers/Dalbit/contents/images/3840x2160.svg; then exit 1; fi
             lsinitrd /usr/lib/modules/*/initramfs.img | grep -q "plymouth/themes/dalbit/dalbit.script"
             if rpm -q librsvg2-tools; then exit 1; fi
             systemctl is-enabled dalbit-grub-hide-menu.service

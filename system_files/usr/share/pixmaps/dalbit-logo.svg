@@ -1,23 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
   <title>Dalbit OS</title>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#25335c"/>
-      <stop offset="1" stop-color="#0c1226"/>
-    </linearGradient>
-    <radialGradient id="moon" cx="0.35" cy="0.3" r="0.8">
-      <stop offset="0" stop-color="#fffaf0"/>
-      <stop offset="0.6" stop-color="#f8e4a8"/>
-      <stop offset="1" stop-color="#e9c46a"/>
-    </radialGradient>
-    <mask id="crescent">
-      <rect width="256" height="256" fill="#fff"/>
-      <circle cx="158" cy="100" r="66" fill="#000"/>
-    </mask>
-  </defs>
-  <circle cx="128" cy="128" r="122" fill="url(#bg)"/>
-  <circle cx="122" cy="134" r="78" fill="url(#moon)" mask="url(#crescent)"/>
-  <circle cx="186" cy="168" r="4" fill="#fffaf0" opacity="0.9"/>
-  <circle cx="200" cy="138" r="2.5" fill="#fffaf0" opacity="0.7"/>
-  <circle cx="170" cy="196" r="2" fill="#fffaf0" opacity="0.6"/>
+  <!-- 초승달: 원 A(128,128 r100) - 원 B(160,104 r84). 마스크 없이 경로 하나로 (Qt SVG 호환) -->
+  <path fill="#E8EAEE" d="M124.06 28.08 A100 100 0 1 0 222.82 159.76 A84 84 0 1 1 124.06 28.08 Z"/>
+  <!-- 네 갈래 별: 중심 (176,92), 반지름 27 -->
+  <path fill="#E8EAEE" transform="translate(176 92) scale(27)" d="M0 -1 C.11 -.11 .11 -.11 1 0 C.11 .11 .11 .11 0 1 C-.11 .11 -.11 .11 -1 0 C-.11 -.11 -.11 -.11 0 -1 Z"/>
 </svg>

@@ -9,6 +9,15 @@ plasma-apply-lookandfeel -a org.dalbit.desktop
 plasma-apply-colorscheme DalbitDark || true
 plasma-apply-wallpaperimage "$WALL" || true
 
+# 글꼴: 시스템 Pretendard, 고정폭 D2Coding
+FONT_UI="Pretendard,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file kdeglobals --group General --key font "$FONT_UI"
+kwriteconfig6 --file kdeglobals --group General --key menuFont "$FONT_UI"
+kwriteconfig6 --file kdeglobals --group General --key toolBarFont "$FONT_UI"
+kwriteconfig6 --file kdeglobals --group General --key smallestReadableFont "Pretendard,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file kdeglobals --group General --key fixed "D2Coding,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file kdeglobals --group WM --key activeFont "Pretendard,10,-1,5,500,0,0,0,0,0,0,0,0,0,0,1"
+
 # 잠금 화면 배경
 kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
 kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "file://$WALL/"

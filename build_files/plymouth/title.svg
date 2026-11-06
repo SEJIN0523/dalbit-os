@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 60" width="420" height="60">
-  <text x="210" y="40" text-anchor="middle"
-        font-family="Noto Sans" font-weight="300" font-size="30"
-        letter-spacing="14" fill="#e8ecf7">DALBIT</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 48" width="300" height="48">
+  <text x="156" y="32" text-anchor="middle"
+        font-family="Noto Sans" font-weight="200" font-size="24"
+        letter-spacing="12" fill="#CFD3DA">dalbit</text>
 </svg>

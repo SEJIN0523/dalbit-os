@@ -140,6 +140,14 @@ echo "== 기존 /etc/xdg/kdeglobals"; cat /etc/xdg/kdeglobals 2>/dev/null || ech
 kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key LookAndFeelPackage org.dalbit.desktop
 kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme DalbitDark
 kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme breeze-dark
+# 글꼴 (Qt6 형식: 이름,크기,-1,5,굵기,...)
+FONT_UI="Pretendard,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key font "$FONT_UI"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key menuFont "$FONT_UI"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key toolBarFont "$FONT_UI"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key smallestReadableFont "Pretendard,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key fixed "D2Coding,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group WM --key activeFont "Pretendard,10,-1,5,500,0,0,0,0,0,0,0,0,0,0,1"
 # 잠금 화면 배경
 kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
 # 로그인 화면 배경 (Fedora 44 = Plasma Login Manager)
@@ -158,17 +166,48 @@ else
     echo "⚠️ Plasma Login Manager 없음 (로그인 배경은 기본값 유지)"
 fi
 
-### 2-5. 부팅 화면 (Plymouth) — 초기 부팅 파일(initramfs)도 다시 생성
+### 2-5. 빌드 중에만 필요한 도구 (기반 이미지에 없던 것만 설치했다가 마지막에 제거)
+TEMP_PKGS=()
+for p in librsvg2-tools unzip; do
+    rpm -q "$p" >/dev/null 2>&1 || TEMP_PKGS+=("$p")
+done
+if (( ${#TEMP_PKGS[@]} )); then dnf5 install -y "${TEMP_PKGS[@]}"; fi
+
+### 2-6. 글꼴: Pretendard(시스템), D2Coding(터미널) — 공식 GitHub 배포본, 버전·체크섬 고정
+FONT_TMP=$(mktemp -d)
+curl -fsSL -o "$FONT_TMP/pretendard.zip" \
+    https://github.com/orioncactus/pretendard/releases/download/v1.3.9/Pretendard-1.3.9.zip
+echo "04be351a74d6bf7d60c480a3087e51d185485d35a52023142af1df19eb8c428a  $FONT_TMP/pretendard.zip" | sha256sum -c -
+curl -fsSL -o "$FONT_TMP/d2coding.zip" \
+    https://github.com/naver/d2codingfont/releases/download/VER1.4.0/D2Coding-Ver1.4.0-20261003.zip
+echo "17e2da5e2879006eb725b87943f7988736ef8b6c9f8b84bc8e3bdbcb8dd46744  $FONT_TMP/d2coding.zip" | sha256sum -c -
+unzip -q "$FONT_TMP/pretendard.zip" -d "$FONT_TMP/p"
+unzip -q "$FONT_TMP/d2coding.zip" -d "$FONT_TMP/d"
+install -Dm644 -t /usr/share/fonts/pretendard "$FONT_TMP"/p/public/static/Pretendard-*.otf
+install -Dm644 -t /usr/share/fonts/d2coding \
+    "$FONT_TMP/d/D2Coding/D2Coding-Ver1.4.0-20261003.ttf" \
+    "$FONT_TMP/d/D2Coding/D2CodingBold-Ver1.4.0-20261003.ttf"
+# OFL 라이선스 파일 함께 배포
+mkdir -p /usr/share/licenses/pretendard /usr/share/licenses/d2coding
+find "$FONT_TMP/p" -maxdepth 2 -iname 'LICENSE*' -exec cp {} /usr/share/licenses/pretendard/ \;
+find "$FONT_TMP/d" -maxdepth 2 -iname '*LICENSE*' -exec cp {} /usr/share/licenses/d2coding/ \;
+rm -rf "$FONT_TMP"
+fc-cache -f /usr/share/fonts
+fc-list : family > /tmp/fc-families.txt
+grep -q 'Pretendard' /tmp/fc-families.txt
+grep -q 'D2Coding' /tmp/fc-families.txt
+fc-match sans-serif:lang=ko
+fc-match monospace
+
+### 2-7. 부팅 화면 (Plymouth) — 초기 부팅 파일(initramfs)도 다시 생성
 PLY_SRC=/ctx/build_files/plymouth
 PLY_DIR=/usr/share/plymouth/themes/dalbit
 mkdir -p "$PLY_DIR"
-# SVG → PNG 변환 도구는 빌드 중에만 설치했다가 제거
-dnf5 install -y librsvg2-tools
-rsvg-convert -w 320 -h 320 "$PLY_SRC/moon.svg"  -o "$PLY_DIR/moon.png"
-rsvg-convert -w 420 -h 60  "$PLY_SRC/title.svg" -o "$PLY_DIR/title.png"
-rsvg-convert -w 24  -h 24  "$PLY_SRC/star.svg"  -o "$PLY_DIR/star.png"
-rsvg-convert -w 4   -h 4   "$PLY_SRC/bar.svg"   -o "$PLY_DIR/bar.png"
-dnf5 remove -y librsvg2-tools
+# 초승달과 별은 같은 캔버스 크기 (겹치면 로고 완성, 별만 따로 반짝임)
+rsvg-convert -w 128 -h 128 "$PLY_SRC/crescent.svg" -o "$PLY_DIR/crescent.png"
+rsvg-convert -w 128 -h 128 "$PLY_SRC/star.svg"     -o "$PLY_DIR/star.png"
+rsvg-convert -w 300 -h 48  "$PLY_SRC/title.svg"    -o "$PLY_DIR/title.png"
+rsvg-convert -w 4   -h 4   "$PLY_SRC/bar.svg"      -o "$PLY_DIR/bar.png"
 install -m644 "$PLY_SRC/dalbit.plymouth" "$PLY_SRC/dalbit.script" "$PLY_DIR/"
 ls -l "$PLY_DIR"
 rpm -q plymouth-plugin-script
@@ -184,9 +223,13 @@ chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
 # 새 initramfs에 Dalbit 부팅 화면이 들어갔는지 확인
 lsinitrd "/usr/lib/modules/$KVER/initramfs.img" > /tmp/initrd.txt
 grep -q 'usr/share/plymouth/themes/dalbit/dalbit.script' /tmp/initrd.txt
-grep -q 'usr/share/plymouth/themes/dalbit/moon.png' /tmp/initrd.txt
+grep -q 'usr/share/plymouth/themes/dalbit/crescent.png' /tmp/initrd.txt
+grep -q 'usr/share/plymouth/themes/dalbit/star.png' /tmp/initrd.txt
 grep -q 'plymouth/script.so' /tmp/initrd.txt || { echo "❌ initramfs에 plymouth script 플러그인 없음"; exit 1; }
 grep -E 'ostree-prepare-root|plymouth/themes/dalbit|plymouth/script.so' /tmp/initrd.txt | head -20
+
+# 빌드용 임시 도구 제거
+if (( ${#TEMP_PKGS[@]} )); then dnf5 remove -y "${TEMP_PKGS[@]}"; fi
 
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)

@@ -1,53 +1,48 @@
 // Dalbit OS 부팅 화면
-// 남색 밤하늘 위로 초승달과 글자가 서서히 나타나고, 별이 반짝이며, 얇은 막대로 진행률 표시
+// 완전한 검정 위로 실버 마크가 살짝 떠오르며 나타나고, 별만 천천히 숨 쉬듯 반짝임.
+// 아래에 dalbit 글자와 1px 진행 막대.
 
-Window.SetBackgroundTopColor(0.039, 0.059, 0.133);     // #0a0f22
-Window.SetBackgroundBottomColor(0.106, 0.145, 0.290);  // #1b254a
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
 
 sw = Window.GetWidth();
 sh = Window.GetHeight();
 cx = Window.GetX() + sw / 2;
 cy = Window.GetY() + sh / 2;
 
-// 달
-moon_img = Image("moon.png");
-moon = Sprite(moon_img);
-moon_y = cy - moon_img.GetHeight() / 2 - 70;
-moon.SetX(cx - moon_img.GetWidth() / 2);
-moon.SetY(moon_y + 12);
-moon.SetZ(10);
-moon.SetOpacity(0);
+// 초승달과 별은 같은 크기의 캔버스라 같은 위치에 겹치면 로고가 됨
+cres_img = Image("crescent.png");
+star_img = Image("star.png");
+mark_w = cres_img.GetWidth();
+mark_h = cres_img.GetHeight();
+mark_x = cx - mark_w / 2;
+mark_y = cy - mark_h / 2 - 40;
 
-// 글자
+cres = Sprite(cres_img);
+cres.SetX(mark_x);
+cres.SetY(mark_y + 8);
+cres.SetZ(10);
+cres.SetOpacity(0);
+
+star = Sprite(star_img);
+star.SetX(mark_x);
+star.SetY(mark_y + 8);
+star.SetZ(11);
+star.SetOpacity(0);
+
 title_img = Image("title.png");
 title = Sprite(title_img);
-title_y = moon_y + moon_img.GetHeight() + 10;
+title_y = mark_y + mark_h + 26;
 title.SetX(cx - title_img.GetWidth() / 2);
 title.SetY(title_y);
 title.SetZ(10);
 title.SetOpacity(0);
 
-// 별 (달 기준 상대 위치)
-star_img = Image("star.png");
-star_dx[0] = -230; star_dy[0] = -150; star_sp[0] = 0.045;
-star_dx[1] =  190; star_dy[1] = -120; star_sp[1] = 0.035;
-star_dx[2] = -160; star_dy[2] =   60; star_sp[2] = 0.055;
-star_dx[3] =  250; star_dy[3] =   30; star_sp[3] = 0.030;
-star_dx[4] =   80; star_dy[4] = -210; star_sp[4] = 0.050;
-star_dx[5] = -300; star_dy[5] =  -20; star_sp[5] = 0.040;
-for (i = 0; i < 6; i++) {
-    star[i] = Sprite(star_img);
-    star[i].SetX(cx + star_dx[i] - star_img.GetWidth() / 2);
-    star[i].SetY(cy - 70 + star_dy[i] - star_img.GetHeight() / 2);
-    star[i].SetZ(5);
-    star[i].SetOpacity(0);
-}
-
 // 진행 막대
-bar_w = 180;
-bar_h = 2;
+bar_w = 84;
+bar_h = 1;
 bar_x = cx - bar_w / 2;
-bar_y = title_y + title_img.GetHeight() + 26;
+bar_y = title_y + title_img.GetHeight() + 20;
 bar_src = Image("bar.png");
 bar_bg = Sprite(bar_src.Scale(bar_w, bar_h));
 bar_bg.SetX(bar_x);
@@ -62,22 +57,22 @@ bar_fg.SetZ(11);
 global.t = 0;
 fun refresh_callback() {
     global.t = global.t + 1;
-    // 1.5초 동안 서서히 나타남 (약 50fps 기준)
+    // 약 1.5초 동안 나타남 (50fps 기준)
     a = global.t / 75;
     if (a > 1) {
         a = 1;
     }
-    moon.SetOpacity(a);
-    moon.SetY(moon_y + 12 * (1 - a));
-    title.SetOpacity(a * 0.92);
-    bar_bg.SetOpacity(a * 0.18);
-    for (i = 0; i < 6; i++) {
-        s = Math.Sin(global.t * star_sp[i] + i * 1.7);
-        if (s < 0) {
-            s = 0 - s;
-        }
-        star[i].SetOpacity(a * (0.25 + 0.75 * s));
-    }
+    // 부드럽게 감속 (ease-out)
+    e = 1 - (1 - a) * (1 - a);
+    y = mark_y + 8 * (1 - e);
+    cres.SetY(y);
+    star.SetY(y);
+    cres.SetOpacity(e);
+    // 별: 나타난 뒤 3초 주기로 천천히 밝아졌다 어두워짐
+    s = Math.Cos(global.t * 0.04);
+    star.SetOpacity(e * (0.775 + 0.225 * s));
+    title.SetOpacity(e * 0.9);
+    bar_bg.SetOpacity(e * 0.15);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -98,7 +93,7 @@ prompt_sprite.SetZ(20);
 bullet_sprite.SetZ(20);
 
 fun display_password_callback(prompt, bullets) {
-    p = Image.Text(prompt, 0.91, 0.93, 0.97);
+    p = Image.Text(prompt, 0.91, 0.92, 0.93);
     prompt_sprite.SetImage(p);
     prompt_sprite.SetX(cx - p.GetWidth() / 2);
     prompt_sprite.SetY(bar_y + 30);
@@ -107,7 +102,7 @@ fun display_password_callback(prompt, bullets) {
     for (i = 0; i < bullets; i++) {
         str = str + "* ";
     }
-    b = Image.Text(str, 0.56, 0.64, 0.85);
+    b = Image.Text(str, 0.66, 0.72, 0.85);
     bullet_sprite.SetImage(b);
     bullet_sprite.SetX(cx - b.GetWidth() / 2);
     bullet_sprite.SetY(bar_y + 60);
@@ -125,7 +120,7 @@ Plymouth.SetDisplayNormalFunction(display_normal_callback);
 message_sprite = Sprite();
 message_sprite.SetZ(20);
 fun message_callback(text) {
-    m = Image.Text(text, 0.6, 0.65, 0.78);
+    m = Image.Text(text, 0.55, 0.57, 0.62);
     message_sprite.SetImage(m);
     message_sprite.SetX(cx - m.GetWidth() / 2);
     message_sprite.SetY(Window.GetY() + sh - 60);

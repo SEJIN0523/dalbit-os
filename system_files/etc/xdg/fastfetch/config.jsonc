@@ -4,7 +4,7 @@
         "type": "file",
         "source": "/usr/share/dalbit/fastfetch-logo.txt",
         "color": {
-            "1": "yellow",
+            "1": "white",
             "2": "blue"
         }
     }
