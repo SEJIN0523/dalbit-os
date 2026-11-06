@@ -82,6 +82,8 @@ jobs:
             test -f /usr/share/plymouth/themes/dalbit/moon.png
             lsinitrd /usr/lib/modules/*/initramfs.img | grep -q "plymouth/themes/dalbit/dalbit.script"
             if rpm -q librsvg2-tools; then exit 1; fi
+            systemctl is-enabled dalbit-grub-hide-menu.service
+            bash -n /usr/libexec/dalbit/grub-hide-menu
             bash -n /usr/bin/dalbit-theme
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf

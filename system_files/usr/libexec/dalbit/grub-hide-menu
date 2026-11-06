@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Dalbit OS: GRUB 부팅 메뉴를 평소에는 숨김 (Esc/Shift를 누르면 표시)
+# bootupd 고정 grub.cfg는 기본값(timeout_style=menu) 다음에 user.cfg를 읽으므로 여기서 덮어씀.
+# 롤백용 menu_show_once 처리는 user.cfg 이후에 있어 그대로 동작함.
+set -euo pipefail
+
+GRUB_DIR=/boot/grub2
+CFG="$GRUB_DIR/grub.cfg"
+USER_CFG="$GRUB_DIR/user.cfg"
+MARK="# dalbit-hide-menu"
+
+[ -f "$CFG" ] || exit 0
+grep -q 'user.cfg' "$CFG" || { echo "grub.cfg가 user.cfg를 읽지 않음 — 건너뜀"; exit 0; }
+grep -qF "$MARK" "$USER_CFG" 2>/dev/null && exit 0
+
+remounted=0
+if ! touch "$GRUB_DIR/.dalbit-write-test" 2>/dev/null; then
+    mount -o remount,rw /boot
+    remounted=1
+fi
+rm -f "$GRUB_DIR/.dalbit-write-test"
+
+# 기존 user.cfg(예: GRUB 비밀번호)는 유지하고 뒤에 추가
+{
+    echo "$MARK"
+    echo "set timeout_style=hidden"
+    echo "set timeout=1"
+} >> "$USER_CFG"
+chmod 0600 "$USER_CFG"
+sync
+
+[ "$remounted" = 1 ] && mount -o remount,ro /boot
+echo "부팅 메뉴 숨김 설정 완료"

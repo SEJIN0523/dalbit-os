@@ -1,0 +1,12 @@
+[Unit]
+Description=Dalbit OS - hide GRUB menu by default (Esc/Shift to show)
+RequiresMountsFor=/boot
+After=local-fs.target
+
+[Service]
+Type=oneshot
+# 실패해도 부팅에는 영향 없음
+ExecStart=-/usr/libexec/dalbit/grub-hide-menu
+
+[Install]
+WantedBy=multi-user.target
