@@ -20,6 +20,8 @@ PACKAGES=(
     naver-nanum-gothic-fonts
     # 영상 가속 점검 (vainfo)
     libva-utils
+    # 부팅 화면(Plymouth) script 테마 실행용
+    plymouth-plugin-script
     # 도구
     fastfetch
     htop
