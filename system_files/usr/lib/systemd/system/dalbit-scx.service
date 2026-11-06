@@ -1,0 +1,19 @@
+[Unit]
+Description=Dalbit OS - sched_ext scheduler (scx_lavd)
+Documentation=https://github.com/sched-ext/scx
+# sched_ext를 지원하지 않는 커널이면 실행하지 않고 기본 스케줄러(EEVDF) 유지
+ConditionPathExists=/sys/kernel/sched_ext
+After=multi-user.target
+
+[Service]
+Type=simple
+# --autopower: 전원 프로필(성능/균형/절전)에 맞춰 자동으로 동작 방식 전환
+ExecStart=/usr/bin/scx_lavd --autopower
+Restart=on-failure
+RestartSec=5
+# 반복 실패 시 포기하고 기본 스케줄러로 남음 (시스템에는 영향 없음)
+StartLimitIntervalSec=120
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target

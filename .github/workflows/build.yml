@@ -51,6 +51,20 @@ jobs:
             --tag "${IMAGE_NAME}:${SHORT_SHA}" \
             .
 
+      - name: 이미지 검사
+        run: |
+          podman run --rm "${IMAGE_NAME}:latest" bash -euxc '
+            test -x /usr/bin/scx_lavd
+            test -x /usr/bin/dalbit-check
+            test -x /usr/libexec/dalbit/power-tune
+            systemctl is-enabled dalbit-scx.service
+            systemctl is-enabled dalbit-power-tune.service
+            grep -q "zram-size = ram" /etc/systemd/zram-generator.conf
+            grep -q "vm.swappiness = 180" /usr/lib/sysctl.d/99-dalbit.conf
+            jq -e ".transports.docker[\"ghcr.io/sejin0523/dalbit\"]" /etc/containers/policy.json
+            rpm -q fcitx5-hangul scx-scheds
+          '
+
       - name: GHCR 로그인
         if: env.PUBLISH == 'true'
         uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0

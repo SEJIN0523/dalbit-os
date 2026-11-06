@@ -17,6 +17,11 @@ system_files/                  # 이미지의 / 에 그대로 복사되는 파�
 docs/                          # 단계별 가이드
 ```
 
+## 최적화
+
+Zen 4 + Radeon 760M에 맞춘 스케줄러(scx_lavd), zram, 노트북 전력 튜닝이 들어 있습니다.
+자세한 내용은 [`docs/02-optimization.md`](docs/02-optimization.md), 설치 후 점검은 `dalbit-check`.
+
 ## 로드맵
 
 - [ ] 1. Live USB로 두 기기 하드웨어 테스트 → `docs/01-hardware-test.md`

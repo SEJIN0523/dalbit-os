@@ -1,0 +1,2 @@
+# Dalbit OS: 충전기 연결/해제 시 전원 튜닝 실행
+SUBSYSTEM=="power_supply", ACTION=="change", RUN+="/usr/libexec/dalbit/power-tune"

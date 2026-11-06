@@ -1,0 +1,10 @@
+[Unit]
+Description=Dalbit OS - apply power tuning at boot
+After=systemd-udev-settle.service graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/dalbit/power-tune
+
+[Install]
+WantedBy=graphical.target
