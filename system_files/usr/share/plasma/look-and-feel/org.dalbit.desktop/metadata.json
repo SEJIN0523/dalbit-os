@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Description": "Dalbit OS night theme",
+        "Description[ko]": "Dalbit OS 밤하늘 테마",
+        "Id": "org.dalbit.desktop",
+        "License": "GPL-2.0-or-later",
+        "Name": "Dalbit",
+        "Name[ko]": "달빛",
+        "Version": "1.0",
+        "Website": "https://github.com/SEJIN0523/dalbit-os"
+    },
+    "X-Plasma-APIVersion": "2"
+}

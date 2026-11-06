@@ -74,6 +74,10 @@ jobs:
             test -f /usr/share/wallpapers/Dalbit/contents/images/3840x2160.svg
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
             fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"
+            grep -q "LookAndFeelPackage=org.dalbit.desktop" /etc/xdg/kdeglobals
+            test -f /usr/share/color-schemes/DalbitDark.colors
+            test -x /usr/bin/dalbit-theme
+            bash -n /usr/bin/dalbit-theme
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf
             ls /usr/lib/tuned/profiles/dalbit-powersave/tuned.conf /usr/lib/tuned/dalbit-powersave/tuned.conf 2>/dev/null | grep -q .

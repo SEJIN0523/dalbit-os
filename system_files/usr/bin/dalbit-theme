@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Dalbit OS 테마를 현재 사용자에게 적용 (작업표시줄 배치는 그대로 유지)
+set -euo pipefail
+
+WALL=/usr/share/wallpapers/Dalbit
+
+echo "🌙 Dalbit 테마를 적용합니다."
+plasma-apply-lookandfeel -a org.dalbit.desktop
+plasma-apply-colorscheme DalbitDark || true
+plasma-apply-wallpaperimage "$WALL" || true
+
+# 잠금 화면 배경
+kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
+kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "file://$WALL/"
+
+echo "✅ 완료! 일부 앱은 다시 실행해야 새 색상이 적용됩니다."

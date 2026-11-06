@@ -130,6 +130,31 @@ kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Website "
 kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Variant "Zen 4 Edition"
 cat /etc/xdg/kcm-about-distrorc
 
+### 2-4. Dalbit 테마 (다크 + 하늘색 강조) — 새 사용자 기본값
+WALL=/usr/share/wallpapers/Dalbit
+test -f /usr/share/color-schemes/DalbitDark.colors
+test -f /usr/share/plasma/look-and-feel/org.dalbit.desktop/metadata.json
+echo "== 기존 /etc/xdg/kdeglobals"; cat /etc/xdg/kdeglobals 2>/dev/null || echo "(없음)"
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key LookAndFeelPackage org.dalbit.desktop
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme DalbitDark
+kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme breeze-dark
+# 잠금 화면 배경
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
+# 로그인 화면(SDDM) 배경: 사용 중인 테마 확인 후 설정
+grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null || echo "SDDM Current 설정 없음 (기본 breeze)"
+SDDM_THEME=$(grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null | tail -1 | cut -d= -f2)
+SDDM_THEME=${SDDM_THEME:-breeze}
+echo "SDDM 테마: $SDDM_THEME"
+if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
+    cat > "/usr/share/sddm/themes/$SDDM_THEME/theme.conf.user" <<EOF
+[General]
+background=$WALL/contents/images/3840x2160.svg
+type=image
+EOF
+else
+    echo "⚠️ SDDM 테마 폴더 없음: $SDDM_THEME (로그인 배경은 기본값 유지)"
+fi
+
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)
 install -Dm644 /ctx/cosign.pub /etc/pki/containers/dalbit.pub
@@ -143,7 +168,7 @@ install -m644 /tmp/policy.json "$POLICY"
 jq . "$POLICY"
 
 ### 4. 실행 권한
-chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery
+chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme
 
 ### 5. 서비스
 systemctl enable dalbit-battery-init.service
