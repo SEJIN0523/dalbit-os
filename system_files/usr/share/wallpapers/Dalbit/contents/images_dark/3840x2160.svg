@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160">
+  <defs>
+    <radialGradient id="glow" gradientUnits="userSpaceOnUse" cx="2780" cy="700" r="2900">
+      <stop offset="0" stop-color="#2A2F38"/>
+      <stop offset="0.45" stop-color="#121418"/>
+      <stop offset="1" stop-color="#08090B"/>
+    </radialGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <!-- Dalbit 마크 (256 단위 → 약 1000px) -->
+  <g transform="translate(2350 380) scale(3.9)" fill="#E8EAEE" fill-opacity="0.92">
+    <path d="M124.06 28.08 A100 100 0 1 0 222.82 159.76 A84 84 0 1 1 124.06 28.08 Z"/>
+    <path transform="translate(176 92) scale(27)" d="M0 -1 C.11 -.11 .11 -.11 1 0 C.11 .11 .11 .11 0 1 C-.11 .11 -.11 .11 -1 0 C-.11 -.11 -.11 -.11 0 -1 Z"/>
+  </g>
+</svg>

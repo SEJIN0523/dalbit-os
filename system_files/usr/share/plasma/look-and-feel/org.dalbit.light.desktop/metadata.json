@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Description": "Dalbit OS light theme (Mist)",
+        "Description[ko]": "Dalbit OS 라이트 테마 (Mist)",
+        "Id": "org.dalbit.light.desktop",
+        "License": "GPL-2.0-or-later",
+        "Name": "Dalbit Light",
+        "Name[ko]": "달빛 라이트",
+        "Version": "1.0",
+        "Website": "https://github.com/SEJIN0523/dalbit-os"
+    },
+    "X-Plasma-APIVersion": "2"
+}

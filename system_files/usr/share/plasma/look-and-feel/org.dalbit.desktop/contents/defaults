@@ -2,7 +2,7 @@
 ColorScheme=DalbitDark
 
 [kdeglobals][Icons]
-Theme=breeze-dark
+Theme=dalbit-dark
 
 [kdeglobals][KDE]
 widgetStyle=Breeze

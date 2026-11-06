@@ -134,12 +134,23 @@ cat /etc/xdg/kcm-about-distrorc
 
 ### 2-4. Dalbit 테마 (다크 + 하늘색 강조) — 새 사용자 기본값
 WALL=/usr/share/wallpapers/Dalbit
+# 부팅·잠금·로그인은 테마와 상관없이 항상 다크 그림
+WALL_DARK_IMG="file://$WALL/contents/images_dark/3840x2160.svg"
 test -f /usr/share/color-schemes/DalbitDark.colors
+test -f /usr/share/color-schemes/DalbitLight.colors
 test -f /usr/share/plasma/look-and-feel/org.dalbit.desktop/metadata.json
+test -f /usr/share/plasma/look-and-feel/org.dalbit.light.desktop/metadata.json
+test -f /usr/share/icons/dalbit-dark/index.theme
+test -f /usr/share/icons/dalbit-light/index.theme
+gtk-update-icon-cache -f /usr/share/icons/dalbit-dark 2>/dev/null || true
+gtk-update-icon-cache -f /usr/share/icons/dalbit-light 2>/dev/null || true
 echo "== 기존 /etc/xdg/kdeglobals"; cat /etc/xdg/kdeglobals 2>/dev/null || echo "(없음)"
 kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key LookAndFeelPackage org.dalbit.desktop
 kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme DalbitDark
-kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme breeze-dark
+kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme dalbit-dark
+# Plasma의 낮/밤 자동 전환 기능이 있는 경우 쓸 라이트/다크 테마 짝
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultLightLookAndFeel org.dalbit.light.desktop
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultDarkLookAndFeel org.dalbit.desktop
 # 글꼴 (Qt6 형식: 이름,크기,-1,5,굵기,...)
 FONT_UI="Pretendard,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key font "$FONT_UI"
@@ -149,7 +160,8 @@ kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key smallestReadableF
 kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key fixed "D2Coding,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file /etc/xdg/kdeglobals --group WM --key activeFont "Pretendard,10,-1,5,500,0,0,0,0,0,0,0,0,0,0,1"
 # 잠금 화면 배경
-kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "$WALL_DARK_IMG"
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "$WALL_DARK_IMG"
 # 로그인 화면 배경 (Fedora 44 = Plasma Login Manager)
 # 배포판 기본값 파일: /usr/lib/plasmalogin/defaults.conf (/etc/plasmalogin.conf가 덮어씀)
 PLM_DEFAULTS=/usr/lib/plasmalogin/defaults.conf
@@ -158,9 +170,9 @@ if rpm -q plasma-login-manager >/dev/null 2>&1 || [ -d /usr/lib/plasmalogin ]; t
     mkdir -p "$(dirname "$PLM_DEFAULTS")"
     kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --key WallpaperPlugin org.kde.image
     kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --group Wallpaper --group org.kde.image --group General \
-        --key Image "file://$WALL/contents/images/3840x2160.svg"
+        --key Image "$WALL_DARK_IMG"
     kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --group Wallpaper --group org.kde.image --group General \
-        --key PreviewImage "file://$WALL/"
+        --key PreviewImage "$WALL_DARK_IMG"
     echo "== 변경 후 $PLM_DEFAULTS"; cat "$PLM_DEFAULTS"
 else
     echo "⚠️ Plasma Login Manager 없음 (로그인 배경은 기본값 유지)"

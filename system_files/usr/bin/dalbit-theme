@@ -1,12 +1,26 @@
 #!/usr/bin/env bash
 # Dalbit OS 테마를 현재 사용자에게 적용 (작업표시줄 배치는 그대로 유지)
+#   dalbit-theme          다크 (Dusk)
+#   dalbit-theme dark     다크 (Dusk)
+#   dalbit-theme light    라이트 (Mist)
 set -euo pipefail
 
+MODE=${1:-dark}
 WALL=/usr/share/wallpapers/Dalbit
+# 잠금 화면은 테마와 상관없이 항상 다크
+LOCK_IMG="file://$WALL/contents/images_dark/3840x2160.svg"
 
-echo "🌙 Dalbit 테마를 적용합니다."
-plasma-apply-lookandfeel -a org.dalbit.desktop
-plasma-apply-colorscheme DalbitDark || true
+case "$MODE" in
+    dark)  LNF=org.dalbit.desktop;       SCHEME=DalbitDark;  ICONS=dalbit-dark;  LABEL="다크 (Dusk)" ;;
+    light) LNF=org.dalbit.light.desktop; SCHEME=DalbitLight; ICONS=dalbit-light; LABEL="라이트 (Mist)" ;;
+    *) echo "사용법: dalbit-theme [dark|light]"; exit 2 ;;
+esac
+
+echo "🌙 Dalbit 테마를 적용합니다: $LABEL"
+plasma-apply-lookandfeel -a "$LNF"
+plasma-apply-colorscheme "$SCHEME" || true
+kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
+# 배경화면 패키지 하나에 다크/라이트 그림이 함께 있어 테마에 맞춰 자동 전환됨
 plasma-apply-wallpaperimage "$WALL" || true
 
 # 글꼴: 시스템 Pretendard, 고정폭 D2Coding
@@ -18,8 +32,8 @@ kwriteconfig6 --file kdeglobals --group General --key smallestReadableFont "Pret
 kwriteconfig6 --file kdeglobals --group General --key fixed "D2Coding,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file kdeglobals --group WM --key activeFont "Pretendard,10,-1,5,500,0,0,0,0,0,0,0,0,0,0,1"
 
-# 잠금 화면 배경
-kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
-kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "file://$WALL/"
+# 잠금 화면 배경 (항상 다크)
+kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "$LOCK_IMG"
+kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "$LOCK_IMG"
 
-echo "✅ 완료! 일부 앱은 다시 실행해야 새 색상이 적용됩니다."
+echo "✅ 완료! 일부 앱은 다시 실행해야 새 색상과 아이콘이 적용됩니다."
