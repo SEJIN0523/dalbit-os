@@ -5,6 +5,7 @@
 FROM scratch AS ctx
 COPY build_files /build_files
 COPY system_files /system_files
+COPY cosign.pub /cosign.pub
 
 # 기반 이미지: Fedora KDE + 코덱/하드웨어 지원이 포함된 Universal Blue 버전
 # 안정화 후에는 latest 대신 Fedora 버전 번호 태그로 고정하는 것을 권장합니다.

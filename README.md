@@ -26,18 +26,38 @@ docs/                          # 단계별 가이드
 - [ ] 5. Dalbit 전용 설치 ISO 빌드
 - [ ] 6. 일상 사용하며 개선 / 전용 도구 개발
 
-## 설치 (3단계)
+## 설치 (4단계)
 
 1. Fedora Kinoite 공식 ISO로 설치
 2. 터미널에서 Dalbit 이미지로 전환 후 재부팅
+   (이 시점의 Fedora에는 아직 Dalbit 공개 키가 없어서 첫 전환만 서명 검사 없이 진행됩니다)
    ```bash
    sudo bootc switch ghcr.io/sejin0523/dalbit:latest
    systemctl reboot
    ```
-3. 기본 앱 설치
+3. **서명 검사 켜기** — 이제부터는 내 키로 서명된 이미지만 설치됩니다
+   ```bash
+   sudo bootc switch --enforce-container-sigpolicy ghcr.io/sejin0523/dalbit:latest
+   systemctl reboot
+   ```
+4. 기본 앱 설치
    ```bash
    dalbit-setup
    ```
+
+## 이미지 서명
+
+- 모든 이미지는 GitHub Actions에서 cosign으로 서명됩니다. 공개 키: [`cosign.pub`](cosign.pub)
+- 비밀 키는 GitHub Secrets(`SIGNING_SECRET`)와 개인 PC의 저장소 밖 폴더에만 있습니다. **절대 저장소에 넣지 않습니다.**
+- 수동 검증: `cosign verify --key cosign.pub ghcr.io/sejin0523/dalbit:latest`
+
+## 이미지 태그
+
+| 태그 | 의미 |
+|---|---|
+| `latest` | 최신 빌드 |
+| `YYYYMMDD` | 날짜별 빌드 (특정 날짜로 되돌릴 때) |
+| 커밋 7자리 | 특정 커밋의 빌드 |
 
 ## 업데이트와 롤백
 

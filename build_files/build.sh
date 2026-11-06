@@ -16,13 +16,26 @@ dnf5 install -y \
     google-noto-serif-cjk-fonts \
     naver-nanum-gothic-fonts \
     fastfetch \
-    htop
+    htop \
+    jq
 
-### 3. 실행 권한
+### 3. 이미지 서명 검사 정책
+# Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)
+install -Dm644 /ctx/cosign.pub /etc/pki/containers/dalbit.pub
+POLICY=/etc/containers/policy.json
+jq '.transports.docker["ghcr.io/sejin0523/dalbit"] = [{
+      "type": "sigstoreSigned",
+      "keyPath": "/etc/pki/containers/dalbit.pub",
+      "signedIdentity": { "type": "matchRepository" }
+    }]' "$POLICY" > /tmp/policy.json
+install -m644 /tmp/policy.json "$POLICY"
+jq . "$POLICY"
+
+### 4. 실행 권한
 chmod +x /usr/bin/dalbit-setup
 
-### 4. 서비스
+### 5. 서비스
 # (필요해지면 여기에 systemctl enable 추가)
 
-### 5. 정리
+### 6. 정리
 dnf5 clean all
