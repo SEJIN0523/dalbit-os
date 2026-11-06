@@ -140,19 +140,18 @@ kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme Dalbi
 kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme breeze-dark
 # 잠금 화면 배경
 kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
-# 로그인 화면(SDDM) 배경: 사용 중인 테마 확인 후 설정
-grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null || echo "SDDM Current 설정 없음 (기본 breeze)"
-SDDM_THEME=$( (grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null || true) | tail -1 | cut -d= -f2)
-SDDM_THEME=${SDDM_THEME:-breeze}
-echo "SDDM 테마: $SDDM_THEME"
-if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
-    cat > "/usr/share/sddm/themes/$SDDM_THEME/theme.conf.user" <<EOF
-[General]
-background=$WALL/contents/images/3840x2160.svg
-type=image
-EOF
+# 로그인 화면 배경 (Fedora 44 = Plasma Login Manager)
+# 배포판 기본값 파일: /usr/lib/plasmalogin/defaults.conf (/etc/plasmalogin.conf가 덮어씀)
+PLM_DEFAULTS=/usr/lib/plasmalogin/defaults.conf
+if rpm -q plasma-login-manager >/dev/null 2>&1 || [ -d /usr/lib/plasmalogin ]; then
+    echo "== 기존 $PLM_DEFAULTS"; cat "$PLM_DEFAULTS" 2>/dev/null || echo "(없음)"
+    mkdir -p "$(dirname "$PLM_DEFAULTS")"
+    kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --key WallpaperPluginId org.kde.image
+    kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --group Wallpaper --group org.kde.image --group General \
+        --key Image "file://$WALL/contents/images/3840x2160.svg"
+    echo "== 변경 후 $PLM_DEFAULTS"; cat "$PLM_DEFAULTS"
 else
-    echo "⚠️ SDDM 테마 폴더 없음: $SDDM_THEME (로그인 배경은 기본값 유지)"
+    echo "⚠️ Plasma Login Manager 없음 (로그인 배경은 기본값 유지)"
 fi
 
 ### 3. 이미지 서명 검사 정책
