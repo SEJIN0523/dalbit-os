@@ -1,0 +1,13 @@
+[Unit]
+Description=Dalbit OS - enable battery conservation mode on first boot
+# 한 번 실행된 뒤에는 사용자의 설정(dalbit-battery on/off)을 그대로 유지
+ConditionPathExists=!/var/lib/dalbit/battery-initialized
+After=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+# 지원하지 않는 기기(데스크톱 등)에서는 조용히 넘어감
+ExecStart=-/usr/bin/dalbit-battery --init
+
+[Install]
+WantedBy=multi-user.target

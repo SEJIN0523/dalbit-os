@@ -52,6 +52,7 @@ if [ ${#bat[@]} -gt 0 ]; then
     echo
     echo "[노트북]"
     ok "배터리" "$(cat "${bat[0]}/capacity")% ($(cat "${bat[0]}/status"))"
+    ok "배터리 보호" "$(dalbit-battery 2>/dev/null | head -1 | sed 's/.*: //')"
     for f in /sys/class/drm/card*-eDP-*/amdgpu/panel_power_savings; do
         ok "화면 절전(ABM)" "레벨 $(cat "$f")"
     done

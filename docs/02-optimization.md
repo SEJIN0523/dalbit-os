@@ -9,6 +9,7 @@ Fedora 기본 커널을 그대로 사용하므로 **Secure Boot를 켠 채로** 
 | 메모리 압축 | zram = RAM 크기, zstd | `etc/systemd/zram-generator.conf` |
 | 스왑 튜닝 | swappiness 180, page-cluster 0 (zram 전용 권장값) | `usr/lib/sysctl.d/99-dalbit.conf` |
 | 노트북 화면 절전 | 배터리일 때 ABM 레벨 2, 충전 중에는 0 | `usr/libexec/dalbit/power-tune` + udev 규칙 |
+| 배터리 보호 (Lenovo) | 첫 부팅 시 conservation mode 켜짐. `dalbit-battery on/off`로 전환, 설정은 펌웨어에 유지 | `usr/bin/dalbit-battery` |
 | CPU 전력 | amd-pstate EPP + tuned-ppd (Fedora 기본, 배터리 시 자동 절전) | — |
 | 영상 가속 | VA-API (Universal Blue 기본 포함), `vainfo`로 확인 | — |
 | NPU | 커널 `amdxdna` 드라이버 (Fedora 기본) | — |

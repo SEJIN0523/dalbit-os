@@ -57,6 +57,11 @@ jobs:
             test -x /usr/bin/dalbit-check
             test -x /usr/libexec/dalbit/power-tune
             systemctl is-enabled dalbit-power-tune.service
+            systemctl is-enabled dalbit-battery-init.service
+            test -x /usr/bin/dalbit-battery
+            bash -n /usr/bin/dalbit-battery
+            bash -n /usr/bin/dalbit-check
+            bash -n /usr/libexec/dalbit/power-tune
             grep -q "zram-size = ram" /etc/systemd/zram-generator.conf
             grep -q "vm.swappiness = 180" /usr/lib/sysctl.d/99-dalbit.conf
             jq -e ".transports.docker[\"ghcr.io/sejin0523/dalbit\"]" /etc/containers/policy.json

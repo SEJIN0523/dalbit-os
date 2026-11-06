@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Dalbit OS: 노트북 배터리 보호 모드 (Lenovo IdeaPad conservation mode)
+#   dalbit-battery         현재 상태
+#   dalbit-battery on      보호 모드 켜기 (펌웨어가 정한 값에서 충전 멈춤)
+#   dalbit-battery off     100%까지 충전
+set -euo pipefail
+shopt -s nullglob
+
+find_control() {
+    # 1) IdeaPad 드라이버의 conservation_mode
+    for f in /sys/bus/platform/drivers/ideapad_acpi/*/conservation_mode; do
+        echo "conservation:$f"; return 0
+    done
+    # 2) 최신 커널의 표준 인터페이스 (charge_types: Standard / Long_Life)
+    for f in /sys/class/power_supply/BAT*/charge_types; do
+        grep -q 'Long_Life' "$f" && { echo "charge_types:$f"; return 0; }
+    done
+    return 1
+}
+
+if ! ctl=$(find_control); then
+    echo "이 기기는 배터리 보호 모드를 지원하지 않습니다. (배터리가 없거나 Lenovo IdeaPad가 아님)"
+    exit 1
+fi
+kind=${ctl%%:*}
+file=${ctl#*:}
+
+status() {
+    local on
+    if [ "$kind" = conservation ]; then
+        [ "$(cat "$file")" = 1 ] && on=1 || on=0
+    else
+        grep -q '\[Long_Life\]' "$file" && on=1 || on=0
+    fi
+    local bat=(/sys/class/power_supply/BAT*)
+    local cap="?" st="?"
+    if [ ${#bat[@]} -gt 0 ]; then
+        cap=$(cat "${bat[0]}/capacity"); st=$(cat "${bat[0]}/status")
+    fi
+    if [ "$on" = 1 ]; then
+        echo "🔋 배터리 보호 모드: 켜짐 (일정 수준에서 충전을 멈춥니다)"
+    else
+        echo "🔋 배터리 보호 모드: 꺼짐 (100%까지 충전)"
+    fi
+    echo "   현재 배터리: ${cap}% (${st})"
+}
+
+set_mode() {
+    local want=$1
+    if [ "$(id -u)" != 0 ]; then
+        exec sudo "$0" "$want"
+    fi
+    local value
+    if [ "$kind" = conservation ]; then
+        if [ "$want" = on ]; then value=1; else value=0; fi
+    else
+        if [ "$want" = on ]; then value=Long_Life; else value=Standard; fi
+    fi
+    echo "$value" > "$file"
+}
+
+case "${1:-status}" in
+    on)      set_mode on;  status ;;
+    off)     set_mode off; status ;;
+    status)  status ;;
+    --init)
+        # 첫 부팅 시 1회만 실행 (dalbit-battery-init.service)
+        [ "$(id -u)" = 0 ] || exit 1
+        set_mode on
+        mkdir -p /var/lib/dalbit && touch /var/lib/dalbit/battery-initialized ;;
+    *) echo "사용법: dalbit-battery [on|off|status]"; exit 2 ;;
+esac

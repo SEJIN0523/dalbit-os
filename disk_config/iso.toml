@@ -1,0 +1,24 @@
+# Dalbit OS 설치 ISO 설정 (bootc-image-builder / Anaconda)
+
+[customizations.installer.kickstart]
+contents = """
+%post
+# 설치가 끝나면 이후 업데이트를 GitHub의 Dalbit 이미지에서 받도록 연결
+# 설치된 시스템에 이미 Dalbit 서명 정책이 들어 있으므로 처음부터 서명 검사를 켬
+bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ghcr.io/sejin0523/dalbit:latest
+%end
+"""
+
+[customizations.installer.modules]
+enable = [
+  "org.fedoraproject.Anaconda.Modules.Storage",
+  "org.fedoraproject.Anaconda.Modules.Runtime",
+  "org.fedoraproject.Anaconda.Modules.Network",
+  "org.fedoraproject.Anaconda.Modules.Security",
+  "org.fedoraproject.Anaconda.Modules.Services",
+  "org.fedoraproject.Anaconda.Modules.Users",
+  "org.fedoraproject.Anaconda.Modules.Timezone"
+]
+disable = [
+  "org.fedoraproject.Anaconda.Modules.Subscription",
+]

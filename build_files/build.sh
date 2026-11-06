@@ -54,10 +54,11 @@ install -m644 /tmp/policy.json "$POLICY"
 jq . "$POLICY"
 
 ### 4. 실행 권한
-chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/libexec/dalbit/power-tune
+chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/libexec/dalbit/power-tune
 
 ### 5. 서비스
 systemctl enable dalbit-power-tune.service
+systemctl enable dalbit-battery-init.service
 
 ### 6. 정리
 dnf5 clean all
