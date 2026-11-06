@@ -1,0 +1,3 @@
+# Dalbit OS 설치 기본값: 루트 파일 시스템을 Fedora 기본인 btrfs로
+[install.filesystem.root]
+type = "btrfs"
