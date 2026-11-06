@@ -107,6 +107,29 @@ grep -q '^power-saver=powersave$' "$PPD_CONF"
 sed -i 's/^power-saver=powersave$/power-saver=dalbit-powersave/' "$PPD_CONF"
 grep -q '^power-saver=dalbit-powersave$' "$PPD_CONF"
 
+### 2-3. 브랜딩 (시스템 이름, 로고)
+# ID=fedora 등 호환성 관련 값은 유지하고 표시 이름만 변경
+OSR=/usr/lib/os-release
+FEDORA_VER=$(. "$OSR" && echo "$VERSION_ID")
+sed -i -E \
+    -e 's/^NAME=.*/NAME="Dalbit OS"/' \
+    -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"Dalbit OS (Fedora ${FEDORA_VER} 기반)\"/" \
+    -e '/^(LOGO|HOME_URL|BUG_REPORT_URL)=/d' \
+    "$OSR"
+cat >> "$OSR" <<'EOF'
+LOGO=dalbit
+HOME_URL="https://github.com/SEJIN0523/dalbit-os"
+BUG_REPORT_URL="https://github.com/SEJIN0523/dalbit-os/issues"
+EOF
+cat "$OSR"
+# 아이콘 테마에서 'dalbit' 이름으로 로고를 찾을 수 있도록
+install -Dm644 /usr/share/pixmaps/dalbit-logo.svg /usr/share/icons/hicolor/scalable/apps/dalbit.svg
+# KDE '시스템 정보' 화면
+kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key LogoPath /usr/share/pixmaps/dalbit-logo.svg
+kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Website "https://github.com/SEJIN0523/dalbit-os"
+kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Variant "Zen 4 Edition"
+cat /etc/xdg/kcm-about-distrorc
+
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)
 install -Dm644 /ctx/cosign.pub /etc/pki/containers/dalbit.pub

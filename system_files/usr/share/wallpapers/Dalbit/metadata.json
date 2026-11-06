@@ -1,0 +1,13 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Id": "Dalbit",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Dalbit",
+        "Name[ko]": "달빛"
+    }
+}

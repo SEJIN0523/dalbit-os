@@ -68,6 +68,12 @@ jobs:
             grep -q "korean:ralt_hangul" /etc/xdg/kxkbrc
             grep -q "DefaultIM=hangul" /etc/xdg/fcitx5/profile
             grep -q "XMODIFIERS=@im=fcitx" /usr/lib/environment.d/90-dalbit-ime.conf
+            grep -q "^NAME=\"Dalbit OS\"" /usr/lib/os-release
+            grep -q "^ID=fedora" /usr/lib/os-release
+            test -f /usr/share/icons/hicolor/scalable/apps/dalbit.svg
+            test -f /usr/share/wallpapers/Dalbit/contents/images/3840x2160.svg
+            grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
+            fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf
             ls /usr/lib/tuned/profiles/dalbit-powersave/tuned.conf /usr/lib/tuned/dalbit-powersave/tuned.conf 2>/dev/null | grep -q .
