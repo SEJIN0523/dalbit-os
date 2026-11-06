@@ -78,6 +78,13 @@ jobs:
             test -f /usr/share/icons/dalbit-dark/places/scalable/folder-download.svg
             test -f /usr/share/icons/dalbit-light/places/scalable/folder-download.svg
             grep -q "Theme=dalbit-dark" /etc/xdg/kdeglobals
+            test -f /usr/share/icons/dalbit-dark/apps/scalable/start-here-kde-fedora.svg
+            test -f /usr/share/icons/dalbit-light/apps/scalable/dalbit.svg
+            test -f /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            test -f /usr/share/plasma/look-and-feel/org.dalbit.light.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            test -f /usr/share/fcitx5/themes/dalbit-dark/theme.conf
+            test -f /usr/share/fcitx5/themes/dalbit-light/theme.conf
+            grep -q "DarkTheme=dalbit-dark" /etc/xdg/fcitx5/conf/classicui.conf
             grep -q "images_dark/3840x2160.svg" /etc/xdg/kscreenlockerrc
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
             fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"

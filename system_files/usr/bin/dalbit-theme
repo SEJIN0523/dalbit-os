@@ -3,9 +3,19 @@
 #   dalbit-theme          다크 (Dusk)
 #   dalbit-theme dark     다크 (Dusk)
 #   dalbit-theme light    라이트 (Mist)
+#   --layout              작업표시줄·바탕화면 배치도 Dalbit 기본으로 초기화
+#                         (가운데 시작 버튼 + 고정 앱, 오른쪽 트레이 · 시계)
 set -euo pipefail
 
-MODE=${1:-dark}
+MODE=dark
+RESET_LAYOUT=0
+for arg in "$@"; do
+    case "$arg" in
+        dark|light) MODE=$arg ;;
+        --layout) RESET_LAYOUT=1 ;;
+        *) echo "사용법: dalbit-theme [dark|light] [--layout]"; exit 2 ;;
+    esac
+done
 WALL=/usr/share/wallpapers/Dalbit
 # 잠금 화면은 테마와 상관없이 항상 다크
 LOCK_IMG="file://$WALL/contents/images_dark/3840x2160.svg"
@@ -17,7 +27,12 @@ case "$MODE" in
 esac
 
 echo "🌙 Dalbit 테마를 적용합니다: $LABEL"
-plasma-apply-lookandfeel -a "$LNF"
+if [ "$RESET_LAYOUT" = 1 ]; then
+    echo "   작업표시줄과 바탕화면 배치를 Dalbit 기본으로 초기화합니다. (기존 위젯은 사라집니다)"
+    plasma-apply-lookandfeel -a "$LNF" --resetLayout
+else
+    plasma-apply-lookandfeel -a "$LNF"
+fi
 plasma-apply-colorscheme "$SCHEME" || true
 kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
 # 배경화면 패키지 하나에 다크/라이트 그림이 함께 있어 테마에 맞춰 자동 전환됨

@@ -15,6 +15,7 @@ THEMES = {
         "front": "#A9B8D8",
         "glyph": "#111317",
         "glyph_opacity": "0.6",
+        "mark": "#E8EAEE",
     },
     "dalbit-light": {
         "name": "Dalbit Light",
@@ -23,6 +24,7 @@ THEMES = {
         "front": "#8EA2CF",
         "glyph": "#FFFFFF",
         "glyph_opacity": "0.92",
+        "mark": "#2A2E36",
     },
 }
 
@@ -66,6 +68,33 @@ ICONS = {
 }
 
 
+# 시작 버튼 · 배포판 로고: 이 아이콘 테마를 쓰는 동안 Fedora/KDE 로고 대신 Dalbit 마크
+MARK_NAMES = [
+    "dalbit",
+    "start-here",
+    "start-here-symbolic",
+    "start-here-kde",
+    "start-here-kde-symbolic",
+    "start-here-kde-plasma",
+    "start-here-kde-plasma-symbolic",
+    "start-here-kde-fedora",
+    "start-here-kde-fedora-symbolic",
+    "distributor-logo",
+    "distributor-logo-symbolic",
+]
+CRESCENT = "M124.06 28.08 A100 100 0 1 0 222.82 159.76 A84 84 0 1 1 124.06 28.08 Z"
+STAR = "M0 -1 C.11 -.11 .11 -.11 1 0 C.11 .11 .11 .11 0 1 C-.11 .11 -.11 .11 -1 0 C-.11 -.11 -.11 -.11 0 -1 Z"
+
+
+def mark_svg(color: str) -> str:
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">\n'
+        f'  <path fill="{color}" d="{CRESCENT}"/>\n'
+        f'  <path fill="{color}" transform="translate(176 92) scale(27)" d="{STAR}"/>\n'
+        "</svg>\n"
+    )
+
+
 def svg(theme: dict, glyph: str) -> str:
     g = GLYPHS[glyph]
     glyph_group = (
@@ -86,15 +115,22 @@ for theme_id, theme in THEMES.items():
     out = base / "places" / "scalable"
     out.mkdir(parents=True, exist_ok=True)
     for name, glyph in ICONS.items():
-        (out / f"{name}.svg").write_text(svg(theme, glyph), encoding="utf-8")
+        (out / f"{name}.svg").write_text(svg(theme, glyph), encoding="utf-8", newline="\n")
+    apps = base / "apps" / "scalable"
+    apps.mkdir(parents=True, exist_ok=True)
+    for name in MARK_NAMES:
+        (apps / f"{name}.svg").write_text(mark_svg(theme["mark"]), encoding="utf-8", newline="\n")
     (base / "index.theme").write_text(
         "[Icon Theme]\n"
         f"Name={theme['name']}\n"
-        "Comment=Dalbit OS folder icons (F1 flat)\n"
+        "Comment=Dalbit OS folder icons (F1 flat) and start button\n"
         f"Inherits={theme['inherits']}\n"
-        "Directories=places/scalable\n\n"
+        "Directories=places/scalable,apps/scalable\n\n"
         "[places/scalable]\n"
-        "Size=64\nMinSize=16\nMaxSize=512\nType=Scalable\nContext=Places\n",
+        "Size=64\nMinSize=16\nMaxSize=512\nType=Scalable\nContext=Places\n\n"
+        "[apps/scalable]\n"
+        "Size=64\nMinSize=16\nMaxSize=512\nType=Scalable\nContext=Applications\n",
         encoding="utf-8",
+        newline="\n",
     )
-    print(f"{theme_id}: {len(ICONS)} icons")
+    print(f"{theme_id}: {len(ICONS)} folder icons, {len(MARK_NAMES)} start icons")
