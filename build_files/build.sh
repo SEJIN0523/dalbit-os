@@ -54,7 +54,9 @@ CHROME=com.google.Chrome.desktop
 for f in /etc/xdg/kde-mimeapps.list /etc/xdg/mimeapps.list /usr/share/applications/mimeapps.list /usr/share/applications/kde-mimeapps.list; do
     [ -f "$f" ] || continue
     echo "== $f"; grep -n -i firefox "$f" || true
-    sed -i "s/firefox\.desktop/${CHROME}/g; s/org\.mozilla\.firefox\.desktop/${CHROME}/g" "$f"
+    # 긴 이름(org.mozilla.firefox)을 먼저 바꿔야 'org.mozilla.' 접두어가 남지 않음
+    sed -i -E "s/(org\.mozilla\.)?firefox\.desktop/${CHROME}/g" "$f"
+    if grep -q 'org\.mozilla\.' "$f"; then echo "❌ $f 에 firefox 흔적 남음"; grep -n 'org\.mozilla\.' "$f"; exit 1; fi
 done
 # 웹 관련 기본 앱을 Chrome으로 지정 (Chrome은 dalbit-setup에서 설치)
 cat >> /etc/xdg/mimeapps.list <<EOF
@@ -69,7 +71,7 @@ EOF
 # KDE 작업표시줄 기본 고정 아이콘에서 Firefox를 Chrome으로 교체 (새 사용자 계정에 적용)
 grep -rl -i 'firefox' /usr/share/plasma 2>/dev/null | while read -r f; do
     echo "== 작업표시줄 설정: $f"; grep -n -i firefox "$f" || true
-    sed -i "s/applications:firefox\.desktop/applications:${CHROME}/g; s/applications:org\.mozilla\.firefox\.desktop/applications:${CHROME}/g" "$f"
+    sed -i -E "s/applications:(org\.mozilla\.)?firefox\.desktop/applications:${CHROME}/g" "$f"
 done
 
 ### 2-1b. 한글 입력 기본 설정 (기존 KDE 설정은 유지하고 필요한 값만 추가)
