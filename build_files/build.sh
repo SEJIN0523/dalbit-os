@@ -41,6 +41,37 @@ dnf5 install -y "${PACKAGES[@]}"
 # sched_ext 스케줄러(scx-scheds)는 Fedora 공식 저장소에 들어오면 추가 예정
 # (외부 COPR 저장소는 신뢰 범위 문제로 사용하지 않음)
 
+### 2-1. Firefox 제거 → 기본 브라우저를 Chrome(Flatpak)으로
+FIREFOX_PKGS=$(rpm -qa 'firefox*' --qf '%{NAME}\n' | sort -u)
+if [ -n "$FIREFOX_PKGS" ]; then
+    echo "제거: $FIREFOX_PKGS"
+    dnf5 remove -y $FIREFOX_PKGS
+fi
+if rpm -q firefox >/dev/null 2>&1; then echo "❌ firefox 제거 실패"; exit 1; fi
+
+CHROME=com.google.Chrome.desktop
+# 기존 기본 앱 설정에서 firefox를 Chrome으로 교체
+for f in /etc/xdg/kde-mimeapps.list /etc/xdg/mimeapps.list /usr/share/applications/mimeapps.list /usr/share/applications/kde-mimeapps.list; do
+    [ -f "$f" ] || continue
+    echo "== $f"; grep -n -i firefox "$f" || true
+    sed -i "s/firefox\.desktop/${CHROME}/g; s/org\.mozilla\.firefox\.desktop/${CHROME}/g" "$f"
+done
+# 웹 관련 기본 앱을 Chrome으로 지정 (Chrome은 dalbit-setup에서 설치)
+cat >> /etc/xdg/mimeapps.list <<EOF
+
+[Default Applications]
+x-scheme-handler/http=${CHROME}
+x-scheme-handler/https=${CHROME}
+text/html=${CHROME}
+application/xhtml+xml=${CHROME}
+EOF
+
+# KDE 작업표시줄 기본 고정 아이콘에서 Firefox를 Chrome으로 교체 (새 사용자 계정에 적용)
+grep -rl -i 'firefox' /usr/share/plasma 2>/dev/null | while read -r f; do
+    echo "== 작업표시줄 설정: $f"; grep -n -i firefox "$f" || true
+    sed -i "s/applications:firefox\.desktop/applications:${CHROME}/g; s/applications:org\.mozilla\.firefox\.desktop/applications:${CHROME}/g" "$f"
+done
+
 ### 2-2. 강력 절전 모드 (KDE 전원 프로필 "절전" = dalbit-powersave)
 rpm -q tuned tuned-ppd power-profiles-daemon || true
 if ! rpm -q tuned-ppd >/dev/null 2>&1; then
