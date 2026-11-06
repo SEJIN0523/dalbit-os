@@ -142,7 +142,7 @@ kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme breeze-dark
 kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "file://$WALL/"
 # 로그인 화면(SDDM) 배경: 사용 중인 테마 확인 후 설정
 grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null || echo "SDDM Current 설정 없음 (기본 breeze)"
-SDDM_THEME=$(grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null | tail -1 | cut -d= -f2)
+SDDM_THEME=$( (grep -rh '^Current=' /etc/sddm.conf /etc/sddm.conf.d/ /usr/lib/sddm/sddm.conf.d/ 2>/dev/null || true) | tail -1 | cut -d= -f2)
 SDDM_THEME=${SDDM_THEME:-breeze}
 echo "SDDM 테마: $SDDM_THEME"
 if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
