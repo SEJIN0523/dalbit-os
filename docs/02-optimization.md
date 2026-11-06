@@ -5,7 +5,7 @@ Fedora 기본 커널을 그대로 사용하므로 **Secure Boot를 켠 채로** 
 
 | 항목 | 설정 | 파일 |
 |---|---|---|
-| CPU 스케줄러 | sched_ext `scx_lavd --autopower` (반응성 우선, 전원 프로필 연동) | `usr/lib/systemd/system/dalbit-scx.service` |
+| CPU 스케줄러 | Fedora 기본(EEVDF). `scx_lavd`는 Fedora 공식 저장소에 들어오면 추가 예정 | — |
 | 메모리 압축 | zram = RAM 크기, zstd | `etc/systemd/zram-generator.conf` |
 | 스왑 튜닝 | swappiness 180, page-cluster 0 (zram 전용 권장값) | `usr/lib/sysctl.d/99-dalbit.conf` |
 | 노트북 화면 절전 | 배터리일 때 ABM 레벨 2, 충전 중에는 0 | `usr/libexec/dalbit/power-tune` + udev 규칙 |
@@ -20,7 +20,6 @@ dalbit-check
 ```
 
 ## 되돌리기
-- 스케줄러 끄기: `sudo systemctl disable --now dalbit-scx` (기본 스케줄러로 복귀)
 - 화면 절전 끄기: `sudo systemctl mask dalbit-power-tune`
 
 ## BIOS 권장 설정

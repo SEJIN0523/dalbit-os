@@ -19,7 +19,7 @@ docs/                          # 단계별 가이드
 
 ## 최적화
 
-Zen 4 + Radeon 760M에 맞춘 스케줄러(scx_lavd), zram, 노트북 전력 튜닝이 들어 있습니다.
+Zen 4 + Radeon 760M에 맞춘 zram, 메모리 튜닝, 노트북 화면 절전이 들어 있습니다.
 자세한 내용은 [`docs/02-optimization.md`](docs/02-optimization.md), 설치 후 점검은 `dalbit-check`.
 
 ## 로드맵

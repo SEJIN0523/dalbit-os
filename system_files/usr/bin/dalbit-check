@@ -18,7 +18,7 @@ echo
 
 echo "[CPU]"
 sched=$(cat /sys/kernel/sched_ext/root/ops 2>/dev/null)
-if [ -n "$sched" ]; then ok "스케줄러" "$sched (sched_ext)"; else warn "스케줄러" "기본(EEVDF) — dalbit-scx 서비스 확인: systemctl status dalbit-scx"; fi
+if [ -n "$sched" ]; then ok "스케줄러" "$sched (sched_ext)"; else ok "스케줄러" "기본 (EEVDF)"; fi
 pstate=$(cat /sys/devices/system/cpu/amd_pstate/status 2>/dev/null)
 if [ "$pstate" = "active" ]; then ok "amd-pstate" "active (EPP)"; else warn "amd-pstate" "${pstate:-없음} — BIOS에서 CPPC 활성화 확인"; fi
 ok "EPP" "$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference 2>/dev/null || echo 없음)"

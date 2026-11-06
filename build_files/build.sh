@@ -18,9 +18,8 @@ PACKAGES=(
     google-noto-sans-cjk-fonts
     google-noto-serif-cjk-fonts
     naver-nanum-gothic-fonts
-    # Zen 4 최적화
-    scx-scheds          # sched_ext 스케줄러 (scx_lavd)
-    libva-utils         # vainfo: 하드웨어 영상 가속 점검
+    # 영상 가속 점검 (vainfo)
+    libva-utils
     # 도구
     fastfetch
     htop
@@ -39,9 +38,8 @@ if (( ${#missing[@]} )); then
 fi
 dnf5 install -y "${PACKAGES[@]}"
 
-# scx_lavd 실행 파일 확인
-test -x /usr/bin/scx_lavd
-rpm -ql scx-scheds | grep -E 'bin/scx_' | head -20
+# sched_ext 스케줄러(scx-scheds)는 Fedora 공식 저장소에 들어오면 추가 예정
+# (외부 COPR 저장소는 신뢰 범위 문제로 사용하지 않음)
 
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)
@@ -59,7 +57,6 @@ jq . "$POLICY"
 chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/libexec/dalbit/power-tune
 
 ### 5. 서비스
-systemctl enable dalbit-scx.service
 systemctl enable dalbit-power-tune.service
 
 ### 6. 정리
