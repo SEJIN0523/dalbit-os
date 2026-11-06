@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Dalbit
+Description=Dalbit OS boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/dalbit
+ScriptFile=/usr/share/plymouth/themes/dalbit/dalbit.script

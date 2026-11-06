@@ -146,13 +146,44 @@ PLM_DEFAULTS=/usr/lib/plasmalogin/defaults.conf
 if rpm -q plasma-login-manager >/dev/null 2>&1 || [ -d /usr/lib/plasmalogin ]; then
     echo "== 기존 $PLM_DEFAULTS"; cat "$PLM_DEFAULTS" 2>/dev/null || echo "(없음)"
     mkdir -p "$(dirname "$PLM_DEFAULTS")"
-    kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --key WallpaperPluginId org.kde.image
+    kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --key WallpaperPlugin org.kde.image
     kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --group Wallpaper --group org.kde.image --group General \
         --key Image "file://$WALL/contents/images/3840x2160.svg"
+    kwriteconfig6 --file "$PLM_DEFAULTS" --group Greeter --group Wallpaper --group org.kde.image --group General \
+        --key PreviewImage "file://$WALL/"
     echo "== 변경 후 $PLM_DEFAULTS"; cat "$PLM_DEFAULTS"
 else
     echo "⚠️ Plasma Login Manager 없음 (로그인 배경은 기본값 유지)"
 fi
+
+### 2-5. 부팅 화면 (Plymouth) — 초기 부팅 파일(initramfs)도 다시 생성
+PLY_SRC=/ctx/build_files/plymouth
+PLY_DIR=/usr/share/plymouth/themes/dalbit
+mkdir -p "$PLY_DIR"
+# SVG → PNG 변환 도구는 빌드 중에만 설치했다가 제거
+dnf5 install -y librsvg2-tools
+rsvg-convert -w 320 -h 320 "$PLY_SRC/moon.svg"  -o "$PLY_DIR/moon.png"
+rsvg-convert -w 420 -h 60  "$PLY_SRC/title.svg" -o "$PLY_DIR/title.png"
+rsvg-convert -w 24  -h 24  "$PLY_SRC/star.svg"  -o "$PLY_DIR/star.png"
+rsvg-convert -w 4   -h 4   "$PLY_SRC/bar.svg"   -o "$PLY_DIR/bar.png"
+dnf5 remove -y librsvg2-tools
+install -m644 "$PLY_SRC/dalbit.plymouth" "$PLY_SRC/dalbit.script" "$PLY_DIR/"
+ls -l "$PLY_DIR"
+rpm -q plymouth-plugin-script
+plymouth-set-default-theme dalbit
+plymouth-set-default-theme | grep -qx dalbit
+
+KVER=$(ls /usr/lib/modules)
+[ "$(echo "$KVER" | wc -l)" = 1 ] || { echo "❌ 커널이 여러 개: $KVER"; exit 1; }
+echo "initramfs 재생성: $KVER"
+export DRACUT_NO_XATTR=1
+dracut --no-hostonly --kver "$KVER" --reproducible --zstd --add ostree -f "/usr/lib/modules/$KVER/initramfs.img"
+chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
+# 새 initramfs에 Dalbit 부팅 화면이 들어갔는지 확인
+lsinitrd "/usr/lib/modules/$KVER/initramfs.img" > /tmp/initrd.txt
+grep -q 'usr/share/plymouth/themes/dalbit/dalbit.script' /tmp/initrd.txt
+grep -q 'usr/share/plymouth/themes/dalbit/moon.png' /tmp/initrd.txt
+grep -E 'ostree-prepare-root|plymouth/themes/dalbit' /tmp/initrd.txt | head
 
 ### 3. 이미지 서명 검사 정책
 # Dalbit 이미지는 내 cosign 키로 서명된 것만 받도록 설정 (다른 이미지는 기존 정책 유지)

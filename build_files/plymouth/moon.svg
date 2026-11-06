@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f8e4a8" stop-opacity="0.22"/>
+      <stop offset="0.55" stop-color="#8fa3d9" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#8fa3d9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="moon" cx="0.35" cy="0.3" r="0.85">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="0.6" stop-color="#f8e4a8"/>
+      <stop offset="1" stop-color="#e2bd62"/>
+    </radialGradient>
+    <mask id="crescent">
+      <rect width="320" height="320" fill="#fff"/>
+      <circle cx="196" cy="128" r="74" fill="#000"/>
+    </mask>
+  </defs>
+  <circle cx="160" cy="160" r="160" fill="url(#glow)"/>
+  <circle cx="156" cy="166" r="86" fill="url(#moon)" mask="url(#crescent)"/>
+</svg>

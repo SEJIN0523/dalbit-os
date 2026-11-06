@@ -78,6 +78,10 @@ jobs:
             test -f /usr/share/color-schemes/DalbitDark.colors
             test -x /usr/bin/dalbit-theme
             grep -q "Dalbit/contents/images/3840x2160.svg" /usr/lib/plasmalogin/defaults.conf
+            plymouth-set-default-theme | grep -qx dalbit
+            test -f /usr/share/plymouth/themes/dalbit/moon.png
+            lsinitrd /usr/lib/modules/*/initramfs.img | grep -q "plymouth/themes/dalbit/dalbit.script"
+            if rpm -q librsvg2-tools; then exit 1; fi
             bash -n /usr/bin/dalbit-theme
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf
