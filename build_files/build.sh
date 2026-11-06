@@ -72,6 +72,20 @@ grep -rl -i 'firefox' /usr/share/plasma 2>/dev/null | while read -r f; do
     sed -i "s/applications:firefox\.desktop/applications:${CHROME}/g; s/applications:org\.mozilla\.firefox\.desktop/applications:${CHROME}/g" "$f"
 done
 
+### 2-1b. 한글 입력 기본 설정 (기존 KDE 설정은 유지하고 필요한 값만 추가)
+FCITX_DESKTOP=/usr/share/applications/org.fcitx.Fcitx5.desktop
+test -f "$FCITX_DESKTOP"
+test -f /etc/xdg/fcitx5/profile
+command -v kwriteconfig6
+for f in /etc/xdg/kwinrc /etc/xdg/kxkbrc; do echo "== 기존 $f"; cat "$f" 2>/dev/null || echo "(없음)"; done
+# 로그인 시 KWin이 fcitx5 실행
+kwriteconfig6 --file /etc/xdg/kwinrc --group Wayland --key InputMethod "$FCITX_DESKTOP"
+kwriteconfig6 --file /etc/xdg/kwinrc --group Wayland --key VirtualKeyboardEnabled true
+# 오른쪽 Alt = 한/영, 오른쪽 Ctrl = 한자 (한/영 키가 Alt로 인식되는 노트북 대응)
+kwriteconfig6 --file /etc/xdg/kxkbrc --group Layout --key Options "korean:ralt_hangul,korean:rctrl_hanja"
+kwriteconfig6 --file /etc/xdg/kxkbrc --group Layout --key ResetOldOptions true
+for f in /etc/xdg/kwinrc /etc/xdg/kxkbrc; do echo "== 변경 후 $f"; cat "$f"; done
+
 ### 2-2. 강력 절전 모드 (KDE 전원 프로필 "절전" = dalbit-powersave)
 rpm -q tuned tuned-ppd power-profiles-daemon || true
 if ! rpm -q tuned-ppd >/dev/null 2>&1; then

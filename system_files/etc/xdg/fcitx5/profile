@@ -1,0 +1,18 @@
+[Groups/0]
+# 그룹 이름
+Name=Default
+# 기본 키보드 배열
+Default Layout=us
+# 기본 입력기
+DefaultIM=hangul
+
+[Groups/0/Items/0]
+Name=keyboard-us
+Layout=
+
+[Groups/0/Items/1]
+Name=hangul
+Layout=
+
+[GroupOrder]
+0=Default

@@ -64,6 +64,10 @@ jobs:
             jq -e ".transports.docker[\"ghcr.io/sejin0523/dalbit\"]" /etc/containers/policy.json
             rpm -q fcitx5-hangul libva-utils tuned-ppd
             if rpm -q firefox; then exit 1; fi
+            grep -q "InputMethod=/usr/share/applications/org.fcitx.Fcitx5.desktop" /etc/xdg/kwinrc
+            grep -q "korean:ralt_hangul" /etc/xdg/kxkbrc
+            grep -q "DefaultIM=hangul" /etc/xdg/fcitx5/profile
+            grep -q "XMODIFIERS=@im=fcitx" /usr/lib/environment.d/90-dalbit-ime.conf
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf
             ls /usr/lib/tuned/profiles/dalbit-powersave/tuned.conf /usr/lib/tuned/dalbit-powersave/tuned.conf 2>/dev/null | grep -q .
