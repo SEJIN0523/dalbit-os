@@ -1,0 +1,2 @@
+# Linux에서 실행되는 파일이므로 줄바꿈을 항상 LF로 유지
+* text=auto eol=lf

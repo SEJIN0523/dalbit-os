@@ -1,0 +1,30 @@
+# 비밀 정보 / 키 (절대 커밋 금지)
+*.key
+*.pem
+*.p12
+*.pfx
+cosign.key
+.env
+.env.*
+*secret*
+*password*
+auth.json
+id_rsa*
+id_ed25519*
+
+# 빌드 산출물
+*.iso
+*.qcow2
+*.raw
+*.img
+output/
+
+# 하드웨어 로그 (시리얼 번호 등이 들어갈 수 있음)
+logs/
+
+# OS / 편집기
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

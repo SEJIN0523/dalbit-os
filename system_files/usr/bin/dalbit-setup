@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Dalbit OS 초기 설정: 기본 Flatpak 앱 설치
+set -euo pipefail
+
+LIST=/usr/share/dalbit/flatpaks.list
+
+echo "🌙 Dalbit OS 초기 설정을 시작합니다."
+
+flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+mapfile -t APPS < <(grep -vE '^\s*(#|$)' "$LIST")
+echo "설치할 앱: ${#APPS[@]}개"
+flatpak install --user -y --noninteractive flathub "${APPS[@]}"
+
+echo "✅ 완료! 한글 입력: 시스템 설정 > 키보드 > 가상 키보드 에서 'Fcitx 5'를 선택하세요."
