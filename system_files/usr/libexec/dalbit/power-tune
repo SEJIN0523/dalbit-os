@@ -23,6 +23,10 @@ level=2
 [ "$on_ac" = 1 ] && level=0
 
 for f in /sys/class/drm/card*-eDP-*/amdgpu/panel_power_savings; do
+    # 배터리 상태에서 이미 더 강한 절전(강력 절전 모드 등)이 걸려 있으면 유지
+    if [ "$on_ac" = 0 ] && [ "$(cat "$f" 2>/dev/null || echo 0)" -gt "$level" ]; then
+        continue
+    fi
     echo "$level" > "$f" 2>/dev/null || true
 done
 exit 0
