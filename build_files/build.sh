@@ -69,7 +69,7 @@ application/xhtml+xml=${CHROME}
 EOF
 
 # KDE 작업표시줄 기본 고정 아이콘에서 Firefox를 Chrome으로 교체 (새 사용자 계정에 적용)
-grep -rl -i 'firefox' /usr/share/plasma 2>/dev/null | while read -r f; do
+(grep -rl -i 'firefox' /usr/share/plasma 2>/dev/null || true) | while read -r f; do
     echo "== 작업표시줄 설정: $f"; grep -n -i firefox "$f" || true
     sed -i -E "s/applications:(org\.mozilla\.)?firefox\.desktop/applications:${CHROME}/g" "$f"
 done
