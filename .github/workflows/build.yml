@@ -123,6 +123,11 @@ jobs:
             grep -q "org.dalbit.controlcenter" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             grep -q "^X-KDE-Shortcuts=Meta+Esc,Ctrl+Shift+Esc" /usr/share/applications/org.kde.plasma-systemmonitor.desktop
             grep -q "BottomRight=ShowDesktop" /etc/xdg/kwinrc
+            test -f /usr/share/icons/dalbit-dark/apps/scalable/dalbit-control.svg
+            test -f /usr/share/icons/dalbit-light/apps/scalable/dalbit-control.svg
+            test -f /usr/share/icons/hicolor/scalable/apps/dalbit-control.svg
+            grep -q "dalbit-control" /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
+            grep -q "dateDisplayFormat\", 1" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             grep -q "root.closeWindow()" /usr/share/plasma/plasmoids/org.dalbit.welcome/contents/ui/main.qml
             if grep -q "showdesktop" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js; then exit 1; fi
 

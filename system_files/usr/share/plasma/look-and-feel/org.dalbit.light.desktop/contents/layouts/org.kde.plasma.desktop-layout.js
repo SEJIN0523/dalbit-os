@@ -21,7 +21,7 @@ for (var j = 0; j < ps.length; j++) {
 
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = Math.round(gridUnit * 2.2);
+panel.height = Math.round(gridUnit * 2.4);
 panel.hiding = "none";
 panel.floating = true;
 
@@ -51,6 +51,12 @@ if (trayId) {
         systray.currentConfigGroup = ["General"];
         systray.writeConfig("scaleIconsToFit", false);
         systray.writeConfig("iconSpacing", 2);
+        // 항상 보이는 항목: Wi-Fi, 소리, 배터리 (+ 한글 입력 상태는 기본으로 표시)
+        systray.writeConfig("shownItems", [
+            "org.kde.plasma.networkmanagement",
+            "org.kde.plasma.volume",
+            "org.kde.plasma.battery"
+        ]);
         systray.writeConfig("hiddenItems", [
             "org.kde.plasma.clipboard",
             "org.kde.plasma.brightness",
@@ -64,11 +70,16 @@ if (trayId) {
 
 panel.addWidget("org.dalbit.controlcenter");
 
-// 시계: 15:36 / 11월 7일 (토)
+// 시계: "11월 7일 (토)  15:41" — 날짜와 시간을 같은 크기로 한 줄에 (Pretendard Medium)
+// dateDisplayFormat: 0 자동 / 1 시간 옆 / 2 시간 아래 (숫자로 저장해야 함)
 var clock = panel.addWidget("org.kde.plasma.digitalclock");
 clock.currentConfigGroup = ["Appearance"];
 clock.writeConfig("use24hFormat", 2);
 clock.writeConfig("showDate", true);
-clock.writeConfig("dateDisplayFormat", "BelowTime");
+clock.writeConfig("dateDisplayFormat", 1);
 clock.writeConfig("dateFormat", "custom");
 clock.writeConfig("customDateFormat", "M월 d일 (ddd)");
+clock.writeConfig("autoFontAndSize", false);
+clock.writeConfig("fontFamily", "Pretendard");
+clock.writeConfig("fontWeight", 57);
+clock.writeConfig("fontSize", 10);

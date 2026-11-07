@@ -21,7 +21,7 @@ PlasmoidItem {
     })
     property int nonce: 0
 
-    Plasmoid.icon: "dalbit"
+    Plasmoid.icon: "dalbit-control"
     toolTipMainText: "Dalbit"
     toolTipSubText: st.update === "ready"
         ? "업데이트 준비됨 · 다시 시작하면 적용됩니다"
@@ -91,7 +91,7 @@ PlasmoidItem {
 
         Kirigami.Icon {
             anchors.fill: parent
-            source: "dalbit"
+            source: "dalbit-control"
             active: compact.containsMouse
         }
         // 업데이트가 준비되면 작은 점

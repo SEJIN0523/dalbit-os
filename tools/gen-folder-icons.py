@@ -130,9 +130,22 @@ def app_svg(theme: dict, glyph: str) -> str:
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">\n'
         f'  <rect x="4" y="4" width="56" height="56" rx="15" fill="{theme["tile"]}" '
         f'stroke="{theme["tile_line"]}" stroke-width="1"/>\n'
-        f'  <g transform="translate(16 16) scale(1.3333)" fill="none" stroke="{theme["line"]}" '
-        f'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{APP_GLYPHS[glyph]}</g>\n'
+        f'  <g transform="translate(14 14) scale(1.5)" fill="none" stroke="{theme["line"]}" '
+        f'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">{APP_GLYPHS[glyph]}</g>\n'
         "</svg>\n"
+    )
+
+
+def control_svg(color: str) -> str:
+    nl = chr(10)
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">' + nl
+        + f'  <g fill="none" stroke="{color}" stroke-width="1.6">'
+        + '<rect x="3" y="4.75" width="18" height="6.5" rx="3.25"/>'
+        + '<rect x="3" y="12.75" width="18" height="6.5" rx="3.25"/></g>' + nl
+        + f'  <circle cx="17.75" cy="8" r="1.9" fill="{color}"/>' + nl
+        + f'  <circle cx="6.25" cy="16" r="1.9" fill="{color}"/>' + nl
+        + '</svg>' + nl
     )
 
 
@@ -161,6 +174,7 @@ for theme_id, theme in THEMES.items():
     apps.mkdir(parents=True, exist_ok=True)
     for name in MARK_NAMES:
         (apps / f"{name}.svg").write_text(mark_svg(theme["mark"]), encoding="utf-8", newline="\n")
+    (apps / "dalbit-control.svg").write_text(control_svg(theme["line"]), encoding="utf-8", newline=chr(10))
     for name, glyph in APP_ICONS.items():
         (apps / f"{name}.svg").write_text(app_svg(theme, glyph), encoding="utf-8", newline="\n")
     (base / "index.theme").write_text(
@@ -177,3 +191,8 @@ for theme_id, theme in THEMES.items():
         newline="\n",
     )
     print(f"{theme_id}: {len(ICONS)} folder icons, {len(MARK_NAMES)} start icons, {len(APP_ICONS)} app icons")
+
+hicolor = ROOT / "system_files" / "usr" / "share" / "icons" / "hicolor" / "scalable" / "apps"
+hicolor.mkdir(parents=True, exist_ok=True)
+(hicolor / "dalbit-control.svg").write_text(control_svg("#E8EAEE"), encoding="utf-8", newline=chr(10))
+print("hicolor: dalbit-control")

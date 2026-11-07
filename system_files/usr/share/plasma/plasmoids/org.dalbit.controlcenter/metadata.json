@@ -9,7 +9,7 @@
         "Category": "System Information",
         "Description": "Appearance, power, battery protection, phone and updates in one place",
         "Description[ko]": "모양, 전원, 배터리 보호, 휴대폰, 업데이트를 한곳에서",
-        "Icon": "dalbit",
+        "Icon": "dalbit-control",
         "Id": "org.dalbit.controlcenter",
         "License": "GPL-2.0-or-later",
         "Name": "Dalbit Control Center",
