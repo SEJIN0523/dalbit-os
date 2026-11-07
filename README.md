@@ -17,12 +17,12 @@ system_files/                  # 이미지의 / 에 그대로 복사되는 파�
   usr/share/plasma/            # 전역 테마 · 위젯(시계, 컨트롤 센터, 달 메뉴, 시작하기)
   usr/share/dalbit/flatpaks.list
 .github/workflows/build.yml    # GitHub Actions 자동 빌드
-docs/                          # 단계별 가이드
+docs/                          # 단계별 가이드, 프로젝트 현황(PROJECT_STATUS.md)
 ```
 
 ## 최적화
 
-Zen 4 + Radeon 760M에 맞춘 zram, 메모리 튜닝, 노트북 화면 절전이 들어 있습니다.
+Zen 4 + Radeon 760M에 맞춘 zram, 메모리 튜닝, 강력 절전 모드, 노트북 배터리 보호가 들어 있습니다.
 자세한 내용은 [`docs/02-optimization.md`](docs/02-optimization.md), 설치 후 점검은 `dalbit-check`.
 
 ## 모양과 배치
@@ -46,12 +46,14 @@ dalbit-theme --buttons-left # 맥식 배치의 창 버튼을 왼쪽으로 (맥 �
 
 ## 로드맵
 
-- [ ] 1. Live USB로 두 기기 하드웨어 테스트 → `docs/01-hardware-test.md`
-- [ ] 2. GitHub 저장소 생성 및 첫 이미지 자동 빌드
-- [ ] 3. Fedora Kinoite 설치 후 Dalbit 이미지로 전환
-- [ ] 4. 브랜딩 (이름, 로고, 부팅 화면, 테마, 배경화면)
-- [ ] 5. Dalbit 전용 설치 ISO 빌드
-- [ ] 6. 일상 사용하며 개선 / 전용 도구 개발
+지금 어디까지 왔는지, 무엇이 확인됐고 무엇이 남았는지는 [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)에 정리합니다.
+
+- [ ] 1. 두 기기 하드웨어 테스트 → `docs/01-hardware-test.md` — 노트북은 실사용 중, 체크리스트 기록과 8600G 확인이 남음
+- [x] 2. GitHub 저장소 생성 및 첫 이미지 자동 빌드
+- [ ] 3. Fedora Kinoite 설치 후 Dalbit 이미지로 전환 — 노트북 완료, 8600G 확인 필요
+- [x] 4. 브랜딩 (이름, 로고, 부팅 화면, 테마, 배경화면)
+- [x] 5. Dalbit 전용 설치 ISO 빌드 (Actions에서 수동 실행)
+- [ ] 6. 일상 사용하며 개선 / 전용 도구 개발 — 진행 중
 
 ## 설치 (4단계)
 
