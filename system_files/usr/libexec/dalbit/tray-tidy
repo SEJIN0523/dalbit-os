@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Dalbit OS: 시스템 트레이를 Wi-Fi · 소리 · 배터리만 보이게 정리
+# 작업표시줄(plasmashell)을 잠깐 내린 상태에서 설정 파일을 직접 고친 뒤 다시 띄운다.
+# (실행 중인 작업표시줄은 종료할 때 자기 설정으로 파일을 덮어쓰기 때문)
+set -euo pipefail
+
+CFG_NAME=plasma-org.kde.plasma.desktop-appletsrc
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}/$CFG_NAME"
+
+SHOWN="org.kde.plasma.networkmanagement,org.kde.plasma.volume,org.kde.plasma.battery"
+HIDDEN="org.kde.plasma.clipboard,org.kde.plasma.brightness,org.kde.plasma.bluetooth,org.kde.plasma.keyboardlayout,org.kde.plasma.manage-inputmethod,Fcitx,fcitx,org.fcitx.Fcitx5,org.kde.kdeconnect,org.kde.kscreen,org.kde.plasma.devicenotifier,org.kde.plasma.mediacontroller,org.kde.plasma.vault,org.kde.plasma.weather,xwaylandvideobridge,org.kde.plasma.printmanager,org.kde.plasma.cameraindicator"
+
+stop_shell() {
+    systemctl --user stop plasma-plasmashell.service 2>/dev/null || kquitapp6 plasmashell 2>/dev/null || true
+    sleep 1
+}
+start_shell() {
+    systemctl --user start plasma-plasmashell.service 2>/dev/null || (kstart plasmashell >/dev/null 2>&1 &) || true
+}
+
+[ -f "$CFG" ] || { echo "작업표시줄 설정 파일이 없습니다: $CFG"; exit 0; }
+
+stop_shell
+# 시스템 트레이 컨테이너 번호 찾기: [Containments][N] 그룹 안의 plugin=org.kde.plasma.private.systemtray
+mapfile -t IDS < <(awk '
+    /^\[Containments\]\[[0-9]+\]$/ { grp = $0; next }
+    /^\[/ { grp = ""; next }
+    grp != "" && $0 == "plugin=org.kde.plasma.private.systemtray" {
+        gsub(/[^0-9]/, "", grp); print grp
+    }' "$CFG")
+
+if (( ${#IDS[@]} == 0 )); then
+    echo "시스템 트레이를 찾지 못했습니다. 작업표시줄을 그대로 다시 띄웁니다."
+    start_shell
+    exit 0
+fi
+
+for id in "${IDS[@]}"; do
+    kwriteconfig6 --file "$CFG_NAME" --group Containments --group "$id" --group General --key scaleIconsToFit false
+    kwriteconfig6 --file "$CFG_NAME" --group Containments --group "$id" --group General --key iconSpacing 2
+    kwriteconfig6 --file "$CFG_NAME" --group Containments --group "$id" --group General --key shownItems "$SHOWN"
+    kwriteconfig6 --file "$CFG_NAME" --group Containments --group "$id" --group General --key hiddenItems "$HIDDEN"
+    echo "트레이 정리: 컨테이너 $id"
+done
+start_shell

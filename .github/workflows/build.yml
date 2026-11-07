@@ -113,7 +113,7 @@ jobs:
             grep -q "DefaultProfile=Dalbit.profile" /etc/xdg/konsolerc
             rpm -q kde-connect
             firewall-offline-cmd --list-services | grep -q kdeconnect
-            for f in cc-status cc-power battery-set welcome-once; do test -x /usr/libexec/dalbit/$f; bash -n /usr/libexec/dalbit/$f; done
+            for f in cc-status cc-power battery-set welcome-once cc-stats cc-phone tray-tidy; do test -x /usr/libexec/dalbit/$f; bash -n /usr/libexec/dalbit/$f; done
             bash -n /usr/bin/dalbit-battery
             test -f /usr/share/polkit-1/actions/org.dalbit.battery.policy
             test -f /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
@@ -128,6 +128,10 @@ jobs:
             test -f /usr/share/icons/hicolor/scalable/apps/dalbit-control.svg
             grep -q "dalbit-control" /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
             test -f /usr/share/plasma/plasmoids/org.dalbit.clock/contents/ui/main.qml
+            grep -q "toLocaleDateString(Qt.locale(\"ko_KR\")" /usr/share/plasma/plasmoids/org.dalbit.clock/contents/ui/main.qml
+            grep -q "cc-stats" /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
+            grep -q "tray-tidy" /usr/bin/dalbit-theme
+            test -f /usr/share/icons/dalbit-dark/apps/scalable/com.valvesoftware.Steam.svg
             grep -q "org.dalbit.clock" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             grep -q "SystrayContainmentId" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             test -d /usr/lib64/qt6/qml/org/kde/plasma/workspace/calendar

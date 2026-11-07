@@ -14,7 +14,7 @@ PlasmoidItem {
     property date now: new Date()
 
     Plasmoid.icon: "preferences-system-time"
-    toolTipMainText: Qt.formatDate(now, "yyyy년 M월 d일 dddd")
+    toolTipMainText: now.toLocaleDateString(Qt.locale("ko_KR"), "yyyy년 M월 d일 dddd")
     toolTipSubText: Qt.formatTime(now, "HH:mm")
 
     Timer {
@@ -54,7 +54,7 @@ PlasmoidItem {
             }
             PlasmaComponents3.Label {
                 anchors.right: parent.right
-                text: Qt.formatDate(root.now, "M월 d일 (ddd)")
+                text: root.now.toLocaleDateString(Qt.locale("ko_KR"), "M월 d일 (ddd)")
                 font.family: "Pretendard"
                 font.pixelSize: Math.round(Kirigami.Theme.defaultFont.pixelSize * 0.82)
                 opacity: compact.containsMouse ? 0.9 : 0.65
@@ -75,7 +75,7 @@ PlasmoidItem {
 
             PlasmaComponents3.Label {
                 Layout.fillWidth: true
-                text: Qt.formatDate(root.now, "yyyy년 M월 d일 dddd")
+                text: root.now.toLocaleDateString(Qt.locale("ko_KR"), "yyyy년 M월 d일 dddd")
                 font.weight: Font.DemiBold
                 font.pointSize: Kirigami.Theme.defaultFont.pointSize * 1.15
             }

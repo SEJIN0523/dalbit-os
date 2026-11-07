@@ -20,6 +20,9 @@ PlasmoidItem {
         update: "ok", version: "", stagedVersion: ""
     })
     property int nonce: 0
+    // 자원: 최근 30개(약 1분) 기록
+    property var stats: ({})
+    property var hist: ({ cpu: [], mem: [], gpu: [], temp: [] })
 
     Plasmoid.icon: "dalbit-control"
     toolTipMainText: "Dalbit"
@@ -34,7 +37,27 @@ PlasmoidItem {
         connectedSources: []
         onNewData: (sourceName, data) => {
             disconnectSource(sourceName)
-            if (sourceName.indexOf("cc-status") !== -1) {
+            if (sourceName.indexOf("cc-stats") !== -1) {
+                try {
+                    const x = JSON.parse(data["stdout"])
+                    root.stats = x
+                    const h = root.hist
+                    const push = (k, v) => {
+                        const a = h[k].slice()
+                        a.push(v === "" || v === undefined ? NaN : Number(v))
+                        while (a.length > 30) a.shift()
+                        return a
+                    }
+                    root.hist = {
+                        cpu: push("cpu", x.cpu),
+                        mem: push("mem", x.memUsed),
+                        gpu: push("gpu", x.gpu),
+                        temp: push("temp", x.temp)
+                    }
+                } catch (e) {
+                    console.warn("dalbit-controlcenter: stats parse failed:", e)
+                }
+            } else if (sourceName.indexOf("cc-status") !== -1) {
                 try {
                     root.st = JSON.parse(data["stdout"])
                 } catch (e) {
@@ -81,6 +104,19 @@ PlasmoidItem {
     Timer { id: refreshTimer; interval: 1200; onTriggered: root.refresh() }
 
     onExpandedChanged: if (expanded) refresh()
+    Timer {
+        interval: 2000
+        repeat: true
+        running: root.expanded
+        triggeredOnStart: true
+        onTriggered: root.run(root.helpers + "cc-stats")
+    }
+    function fmtMinutes(m) {
+        if (m === "" || m === undefined) return ""
+        const n = Number(m)
+        const h = Math.floor(n / 60), mm = n % 60
+        return (h > 0 ? h + "시간 " : "") + mm + "분"
+    }
     Component.onCompleted: refresh()
 
     // ---------- 작업표시줄 아이콘 ----------
@@ -120,6 +156,50 @@ PlasmoidItem {
         color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.04)
         border.width: 1
         border.color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.10)
+    }
+
+    component ResItem: ColumnLayout {
+        id: ri
+        required property string label
+        required property string value
+        required property var series
+        required property real maxValue
+        property real minValue: 0
+        Layout.fillWidth: true
+        spacing: 2
+        RowLayout {
+            Layout.fillWidth: true
+            PlasmaComponents3.Label { text: ri.label; font: Kirigami.Theme.smallFont; opacity: 0.65 }
+            Item { Layout.fillWidth: true }
+            PlasmaComponents3.Label { text: ri.value; font.weight: Font.Medium }
+        }
+        Canvas {
+            id: spark
+            Layout.fillWidth: true
+            implicitHeight: Kirigami.Units.gridUnit
+            property var pts: ri.series
+            onPtsChanged: requestPaint()
+            onWidthChanged: requestPaint()
+            onPaint: {
+                const ctx = getContext("2d")
+                ctx.reset()
+                const a = pts || []
+                if (a.length < 2) return
+                ctx.strokeStyle = Kirigami.Theme.highlightColor
+                ctx.lineWidth = 1.5
+                ctx.lineJoin = "round"
+                ctx.beginPath()
+                let started = false
+                for (let i = 0; i < a.length; i++) {
+                    if (isNaN(a[i])) continue
+                    const x = width * i / 29
+                    const t = Math.max(0, Math.min(1, (a[i] - ri.minValue) / (ri.maxValue - ri.minValue)))
+                    const y = height - 1 - t * (height - 2)
+                    if (!started) { ctx.moveTo(x, y); started = true } else { ctx.lineTo(x, y) }
+                }
+                ctx.stroke()
+            }
+        }
     }
 
     component ModeTile: Rectangle {
@@ -236,6 +316,69 @@ PlasmoidItem {
                 : "평소 사용에 맞춘 기본값"
         }
 
+        // 자원 (누르면 작업 관리자)
+        SectionLabel { text: "자원" }
+        Card {
+            Layout.fillWidth: true
+            implicitHeight: resCol.implicitHeight + Kirigami.Units.smallSpacing * 4
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: { root.expanded = false; root.run("plasma-systemmonitor") }
+            }
+            ColumnLayout {
+                id: resCol
+                anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: Kirigami.Units.smallSpacing * 3 }
+                spacing: Kirigami.Units.smallSpacing * 2
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 2
+                    columnSpacing: Kirigami.Units.largeSpacing * 1.5
+                    rowSpacing: Kirigami.Units.smallSpacing * 2
+                    ResItem {
+                        label: "CPU"; maxValue: 100; series: root.hist.cpu
+                        value: root.stats.cpu !== undefined && root.stats.cpu !== "" ? root.stats.cpu + "%" : "—"
+                    }
+                    ResItem {
+                        label: "메모리"; maxValue: Number(root.stats.memTotal || 16); series: root.hist.mem
+                        value: root.stats.memUsed ? root.stats.memUsed + " / " + root.stats.memTotal + " GB" : "—"
+                    }
+                    ResItem {
+                        label: "그래픽"; maxValue: 100; series: root.hist.gpu
+                        value: root.stats.gpu !== undefined && root.stats.gpu !== "" ? root.stats.gpu + "%" : "—"
+                    }
+                    ResItem {
+                        label: "온도"; minValue: 30; maxValue: 95; series: root.hist.temp
+                        value: root.stats.temp !== undefined && root.stats.temp !== "" ? root.stats.temp + "°C" : "—"
+                    }
+                }
+                Rectangle {
+                    visible: !!root.stats.power
+                    Layout.fillWidth: true
+                    implicitHeight: 1
+                    color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.10)
+                }
+                RowLayout {
+                    visible: !!root.stats.power
+                    Layout.fillWidth: true
+                    PlasmaComponents3.Label {
+                        text: (root.stats.batteryStatus === "Charging" ? "충전 " : "배터리 소모 ") + root.stats.power + " W"
+                        font: Kirigami.Theme.smallFont; opacity: 0.8
+                    }
+                    Item { Layout.fillWidth: true }
+                    PlasmaComponents3.Label {
+                        visible: !!root.stats.minutes
+                        text: root.stats.batteryStatus === "Charging"
+                            ? "다 차기까지 " + root.fmtMinutes(root.stats.minutes)
+                            : "약 " + root.fmtMinutes(root.stats.minutes) + " 남음"
+                        font: Kirigami.Theme.smallFont; opacity: 0.65
+                    }
+                }
+            }
+        }
+
         // 배터리 보호 · 휴대폰
         Card {
             Layout.fillWidth: true
@@ -291,11 +434,32 @@ PlasmoidItem {
                             PlasmaComponents3.Label { text: "휴대폰" }
                             PlasmaComponents3.Label {
                                 Layout.fillWidth: true
-                                text: root.st.phone ? root.st.phone + " · 연결됨" : "연결된 휴대폰 없음 · 눌러서 연결"
+                                text: root.st.phone
+                                    ? root.st.phone + " · 연결됨" + (root.st.phoneBattery ? " · 배터리 " + root.st.phoneBattery + "%" : "")
+                                    : "연결된 휴대폰 없음 · 눌러서 연결"
                                 font: Kirigami.Theme.smallFont; opacity: 0.65; elide: Text.ElideRight
                             }
                         }
                         PlasmaComponents3.Label { text: "›"; opacity: 0.5 }
+                    }
+                }
+
+                RowLayout {
+                    visible: !!root.st.phoneId
+                    Layout.fillWidth: true
+                    Layout.leftMargin: Kirigami.Units.iconSizes.small + Kirigami.Units.smallSpacing * 2
+                    spacing: Kirigami.Units.smallSpacing
+                    PlasmaComponents3.Button {
+                        Layout.fillWidth: true
+                        icon.name: "document-send"
+                        text: "파일 보내기"
+                        onClicked: { root.expanded = false; root.run(root.helpers + "cc-phone send " + root.st.phoneId) }
+                    }
+                    PlasmaComponents3.Button {
+                        Layout.fillWidth: true
+                        icon.name: "notification-active"
+                        text: "휴대폰 찾기"
+                        onClicked: root.run(root.helpers + "cc-phone ring " + root.st.phoneId)
                     }
                 }
             }

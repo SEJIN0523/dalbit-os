@@ -53,9 +53,9 @@ kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group o
 kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "$LOCK_IMG"
 
 if [ "${RESTART_SHELL:-0}" = 1 ]; then
-    # 트레이 표시 항목 등 새 배치 설정이 확실히 반영되도록 작업표시줄을 한 번 다시 띄움
-    sleep 2
-    systemctl --user restart plasma-plasmashell.service 2>/dev/null || (kquitapp6 plasmashell && kstart plasmashell) >/dev/null 2>&1 || true
+    # 새 배치가 저장되도록 잠깐 기다린 뒤, 트레이를 정리하고 작업표시줄을 다시 띄움
+    sleep 3
+    /usr/libexec/dalbit/tray-tidy || true
 fi
 
 echo "✅ 완료! 일부 앱은 다시 실행해야 새 색상과 아이콘이 적용됩니다."

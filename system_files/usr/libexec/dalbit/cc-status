@@ -20,8 +20,15 @@ if [ ${#bat[@]} -gt 0 ]; then
     bstat=$(cat "${bat[0]}/status" 2>/dev/null || true)
 fi
 
-# 휴대폰 (KDE Connect: 연결되어 있는 기기 이름)
-phone=$(kdeconnect-cli -a --name-only 2>/dev/null | head -n1 || true)
+# 휴대폰 (KDE Connect: 연결되어 있는 첫 기기의 ID · 이름 · 배터리)
+phone=""; phone_id=""; phone_batt=""
+line=$(kdeconnect-cli -a --id-name-only 2>/dev/null | head -n1 || true)
+if [ -n "$line" ]; then
+    phone_id=${line%% *}
+    phone=${line#* }
+    phone_batt=$(busctl --user get-property org.kde.kdeconnect "/modules/kdeconnect/devices/$phone_id/battery" \
+        org.kde.kdeconnect.device.battery charge 2>/dev/null | awk '{ print $2 }' || true)
+fi
 
 # 업데이트: 다음 부팅 때 적용될 배포가 있는지
 st=$(rpm-ostree status --json 2>/dev/null || echo '{}')
@@ -30,7 +37,9 @@ staged=$(jq -r '[.deployments[]? | select(.staged == true)][0].version // ""' <<
 if [ -n "$staged" ]; then update=ready; else update=ok; fi
 
 jq -cn --arg mode "$mode" --arg power "$power" --arg battery "$battery" \
-       --arg cap "$cap" --arg bstat "$bstat" --arg phone "$phone" \
+       --arg cap "$cap" --arg bstat "$bstat" \
+       --arg phone "$phone" --arg phoneId "$phone_id" --arg phoneBattery "$phone_batt" \
        --arg update "$update" --arg booted "$booted" --arg staged "$staged" \
    '{mode:$mode, power:$power, battery:$battery, capacity:$cap, batteryStatus:$bstat,
-     phone:$phone, update:$update, version:$booted, stagedVersion:$staged}'
+     phone:$phone, phoneId:$phoneId, phoneBattery:$phoneBattery,
+     update:$update, version:$booted, stagedVersion:$staged}'

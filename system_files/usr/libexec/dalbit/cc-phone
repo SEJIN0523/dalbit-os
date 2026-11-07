@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Dalbit OS 컨트롤 센터: 휴대폰 빠른 동작 (KDE Connect)
+#   cc-phone send <기기ID>   파일을 골라 휴대폰으로 보내기
+#   cc-phone ring <기기ID>   휴대폰 벨 울리기 (무음이어도)
+set -euo pipefail
+
+action=${1:-}
+id=${2:-}
+[[ "$id" =~ ^[A-Za-z0-9_-]+$ ]] || { echo "잘못된 기기 ID" >&2; exit 2; }
+
+case "$action" in
+    send)
+        file=$(kdialog --title "휴대폰으로 보낼 파일" --getopenfilename "$HOME" 2>/dev/null) || exit 0
+        [ -n "$file" ] || exit 0
+        if kdeconnect-cli -d "$id" --share "$file"; then
+            notify-send --app-name="Dalbit OS" --icon=smartphone "휴대폰으로 보냈습니다" "$(basename "$file")" || true
+        else
+            notify-send --app-name="Dalbit OS" --icon=dialog-error "보내지 못했습니다" "휴대폰이 같은 Wi-Fi에 연결되어 있는지 확인하세요" || true
+        fi
+        ;;
+    ring)
+        kdeconnect-cli -d "$id" --ring
+        ;;
+    *) echo "usage: cc-phone send|ring <device-id>" >&2; exit 2 ;;
+esac
