@@ -21,7 +21,7 @@ for (var j = 0; j < ps.length; j++) {
 
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = Math.round(gridUnit * 2.4);
+panel.height = Math.round(gridUnit * 2.6);
 panel.hiding = "none";
 panel.floating = true;
 
@@ -42,16 +42,22 @@ tasks.writeConfig("launchers", [
 
 panel.addWidget("org.kde.plasma.panelspacer");
 
-// 시스템 트레이: 아이콘을 작업표시줄 높이에 맞춰 키우지 않고, 자주 안 쓰는 항목은 ^ 안으로
+// 시스템 트레이: Wi-Fi · 소리 · 배터리만 항상 표시, 나머지는 ^ 안으로. 아이콘은 작업표시줄 높이에 맞춰 키우지 않음
+// 트레이는 자체 컨테이너를 가지며, 그 ID는 위젯 설정의 최상위 그룹(SystrayContainmentId)에 저장됨
 var tray = panel.addWidget("org.kde.plasma.systemtray");
-var trayId = tray.readConfig("SystrayContainmentId");
-if (trayId) {
-    var systray = desktopById(trayId);
+try {
+    tray.currentConfigGroup = [];
+    var trayId = tray.readConfig("SystrayContainmentId");
+    if (!trayId) {
+        tray.currentConfigGroup = ["General"];
+        trayId = tray.readConfig("SystrayContainmentId");
+    }
+    print("Dalbit: systray containment id = " + trayId);
+    var systray = trayId ? desktopById(trayId) : null;
     if (systray) {
         systray.currentConfigGroup = ["General"];
         systray.writeConfig("scaleIconsToFit", false);
         systray.writeConfig("iconSpacing", 2);
-        // 항상 보이는 항목: Wi-Fi, 소리, 배터리 (+ 한글 입력 상태는 기본으로 표시)
         systray.writeConfig("shownItems", [
             "org.kde.plasma.networkmanagement",
             "org.kde.plasma.volume",
@@ -61,25 +67,24 @@ if (trayId) {
             "org.kde.plasma.clipboard",
             "org.kde.plasma.brightness",
             "org.kde.plasma.bluetooth",
+            "org.kde.plasma.keyboardlayout",
+            "org.kde.plasma.manage-inputmethod",
+            "Fcitx",
             "org.kde.kdeconnect",
+            "org.kde.kscreen",
             "org.kde.plasma.devicenotifier",
-            "org.kde.plasma.mediacontroller"
+            "org.kde.plasma.mediacontroller",
+            "org.kde.plasma.vault",
+            "org.kde.plasma.weather",
+            "xwaylandvideobridge"
         ]);
+        try { systray.reloadConfig(); } catch (e) {}
     }
+} catch (e) {
+    print("Dalbit: systray config failed: " + e);
 }
 
 panel.addWidget("org.dalbit.controlcenter");
 
-// 시계: "11월 7일 (토)  15:41" — 날짜와 시간을 같은 크기로 한 줄에 (Pretendard Medium)
-// dateDisplayFormat: 0 자동 / 1 시간 옆 / 2 시간 아래 (숫자로 저장해야 함)
-var clock = panel.addWidget("org.kde.plasma.digitalclock");
-clock.currentConfigGroup = ["Appearance"];
-clock.writeConfig("use24hFormat", 2);
-clock.writeConfig("showDate", true);
-clock.writeConfig("dateDisplayFormat", 1);
-clock.writeConfig("dateFormat", "custom");
-clock.writeConfig("customDateFormat", "M월 d일 (ddd)");
-clock.writeConfig("autoFontAndSize", false);
-clock.writeConfig("fontFamily", "Pretendard");
-clock.writeConfig("fontWeight", 57);
-clock.writeConfig("fontSize", 10);
+// 시계: Dalbit 시계 (위 시간 굵게, 아래 날짜 작고 흐리게, 누르면 달력)
+panel.addWidget("org.dalbit.clock");

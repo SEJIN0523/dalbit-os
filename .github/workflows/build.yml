@@ -127,7 +127,11 @@ jobs:
             test -f /usr/share/icons/dalbit-light/apps/scalable/dalbit-control.svg
             test -f /usr/share/icons/hicolor/scalable/apps/dalbit-control.svg
             grep -q "dalbit-control" /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
-            grep -q "dateDisplayFormat\", 1" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            test -f /usr/share/plasma/plasmoids/org.dalbit.clock/contents/ui/main.qml
+            grep -q "org.dalbit.clock" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            grep -q "SystrayContainmentId" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            test -d /usr/lib64/qt6/qml/org/kde/plasma/workspace/calendar
+            grep -q "^Name\[ko\]=파일" /usr/share/applications/org.kde.dolphin.desktop
             grep -q "root.closeWindow()" /usr/share/plasma/plasmoids/org.dalbit.welcome/contents/ui/main.qml
             if grep -q "showdesktop" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js; then exit 1; fi
 

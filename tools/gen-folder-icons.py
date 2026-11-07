@@ -128,23 +128,21 @@ APP_ICONS = {
 def app_svg(theme: dict, glyph: str) -> str:
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">\n'
-        f'  <rect x="4" y="4" width="56" height="56" rx="15" fill="{theme["tile"]}" '
+        f'  <rect x="1.5" y="1.5" width="61" height="61" rx="17" fill="{theme["tile"]}" '
         f'stroke="{theme["tile_line"]}" stroke-width="1"/>\n'
-        f'  <g transform="translate(14 14) scale(1.5)" fill="none" stroke="{theme["line"]}" '
-        f'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">{APP_GLYPHS[glyph]}</g>\n'
+        f'  <g transform="translate(12 12) scale(1.6667)" fill="none" stroke="{theme["line"]}" '
+        f'stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round">{APP_GLYPHS[glyph]}</g>\n'
         "</svg>\n"
     )
 
 
 def control_svg(color: str) -> str:
+    # 반달(◐): 원 테두리와 오른쪽 절반. 모양·설정을 바꾸는 곳이라는 뜻을 달 분위기로
     nl = chr(10)
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">' + nl
-        + f'  <g fill="none" stroke="{color}" stroke-width="1.6">'
-        + '<rect x="3" y="4.75" width="18" height="6.5" rx="3.25"/>'
-        + '<rect x="3" y="12.75" width="18" height="6.5" rx="3.25"/></g>' + nl
-        + f'  <circle cx="17.75" cy="8" r="1.9" fill="{color}"/>' + nl
-        + f'  <circle cx="6.25" cy="16" r="1.9" fill="{color}"/>' + nl
+        + f'  <circle cx="12" cy="12" r="8.2" fill="none" stroke="{color}" stroke-width="1.7"/>' + nl
+        + f'  <path d="M12 3.8a8.2 8.2 0 0 1 0 16.4z" fill="{color}"/>' + nl
         + '</svg>' + nl
     )
 

@@ -184,7 +184,7 @@ fi
 
 ### 2-5. 빌드 중에만 필요한 도구 (기반 이미지에 없던 것만 설치했다가 마지막에 제거)
 TEMP_PKGS=()
-for p in librsvg2-tools unzip; do
+for p in librsvg2-tools unzip gettext; do
     rpm -q "$p" >/dev/null 2>&1 || TEMP_PKGS+=("$p")
 done
 if (( ${#TEMP_PKGS[@]} )); then dnf5 install -y "${TEMP_PKGS[@]}"; fi
@@ -214,6 +214,27 @@ grep -q 'Pretendard' /tmp/fc-families.txt
 grep -q 'D2Coding' /tmp/fc-families.txt
 fc-match sans-serif:lang=ko
 fc-match monospace
+
+### 2-6b. 파일 탐색기 이름: "Dolphin" → "파일" (OS 기본 탐색기처럼)
+# 창 제목 끝의 앱 이름("다운로드 — Dolphin")은 Dolphin 한국어 번역의 "Dolphin" 항목에서 옴
+DOLPHIN_MO=/usr/share/locale/ko/LC_MESSAGES/dolphin.mo
+if [ -f "$DOLPHIN_MO" ]; then
+    msgunfmt "$DOLPHIN_MO" -o /tmp/dolphin-ko.po
+    grep -n -B1 -A1 '^msgid "Dolphin"$' /tmp/dolphin-ko.po || true
+    awk '
+        /^msgid "Dolphin"$/ { print; hit = 1; next }
+        hit && /^msgstr / { print "msgstr \"파일\""; hit = 0; next }
+        { hit = 0; print }
+    ' /tmp/dolphin-ko.po > /tmp/dolphin-ko.new.po
+    grep -A1 '^msgid "Dolphin"$' /tmp/dolphin-ko.new.po | grep -q '^msgstr "파일"$'
+    msgfmt /tmp/dolphin-ko.new.po -o "$DOLPHIN_MO"
+else
+    echo "⚠️ Dolphin 한국어 번역 파일 없음: 창 제목의 앱 이름은 그대로"
+fi
+DOLPHIN_DESKTOP=/usr/share/applications/org.kde.dolphin.desktop
+test -f "$DOLPHIN_DESKTOP"
+kwriteconfig6 --file "$DOLPHIN_DESKTOP" --group "Desktop Entry" --key "Name[ko]" "파일"
+grep -n '^Name\[ko\]' "$DOLPHIN_DESKTOP"
 
 ### 2-7. 부팅 화면 (Plymouth) — 초기 부팅 파일(initramfs)도 다시 생성
 PLY_SRC=/ctx/build_files/plymouth

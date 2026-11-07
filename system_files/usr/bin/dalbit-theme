@@ -30,6 +30,7 @@ echo "🌙 Dalbit 테마를 적용합니다: $LABEL"
 if [ "$RESET_LAYOUT" = 1 ]; then
     echo "   작업표시줄과 바탕화면 배치를 Dalbit 기본으로 초기화합니다. (기존 위젯은 사라집니다)"
     plasma-apply-lookandfeel -a "$LNF" --resetLayout
+    RESTART_SHELL=1
 else
     plasma-apply-lookandfeel -a "$LNF"
 fi
@@ -50,5 +51,11 @@ kwriteconfig6 --file kdeglobals --group WM --key activeFont "Pretendard,10,-1,5,
 # 잠금 화면 배경 (항상 다크)
 kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image "$LOCK_IMG"
 kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key PreviewImage "$LOCK_IMG"
+
+if [ "${RESTART_SHELL:-0}" = 1 ]; then
+    # 트레이 표시 항목 등 새 배치 설정이 확실히 반영되도록 작업표시줄을 한 번 다시 띄움
+    sleep 2
+    systemctl --user restart plasma-plasmashell.service 2>/dev/null || (kquitapp6 plasmashell && kstart plasmashell) >/dev/null 2>&1 || true
+fi
 
 echo "✅ 완료! 일부 앱은 다시 실행해야 새 색상과 아이콘이 적용됩니다."
