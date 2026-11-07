@@ -131,7 +131,7 @@ jobs:
             grep -q "org.dalbit.clock" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             grep -q "SystrayContainmentId" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
             test -d /usr/lib64/qt6/qml/org/kde/plasma/workspace/calendar
-            grep -q "^Name\[ko\]=파일" /usr/share/applications/org.kde.dolphin.desktop
+            grep -q "^Name\[ko\]=파일 탐색기" /usr/share/applications/org.kde.dolphin.desktop
             grep -q "root.closeWindow()" /usr/share/plasma/plasmoids/org.dalbit.welcome/contents/ui/main.qml
             if grep -q "showdesktop" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js; then exit 1; fi
 
