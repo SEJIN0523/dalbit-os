@@ -45,11 +45,28 @@ jobs:
 
       - name: 이미지 빌드
         run: |
-          podman build --pull=newer \
-            --tag "${IMAGE_NAME}:latest" \
-            --tag "${IMAGE_NAME}:${DATE_TAG}" \
-            --tag "${IMAGE_NAME}:${SHORT_SHA}" \
-            .
+          podman build --pull=newer --tag "${IMAGE_NAME}:latest" .
+
+      # 이미지를 최대 127개 조각으로 다시 나눠, PC가 업데이트할 때 바뀐 조각만 받도록 함
+      # (ublue-os/image-template의 ostree-rechunk 방식)
+      - name: 업데이트 분할 (rechunk)
+        run: |
+          set -euxo pipefail
+          GRAPHROOT="$(podman info --format '{{.Store.GraphRoot}}')"
+          podman run --rm --pull=never --privileged \
+            --mount=type=image,src="${IMAGE_NAME}:latest",target=/rpm-ostree \
+            --mount=type=bind,src="${GRAPHROOT}",target=/run/host-container-storage,rw \
+            --mount=type=tmpfs,target=/run/rpm-ostree-storage \
+            --entrypoint /usr/bin/rpm-ostree \
+            "localhost/${IMAGE_NAME}:latest" \
+            compose build-chunked-oci \
+            --max-layers 127 \
+            --format-version=2 \
+            --bootc \
+            --rootfs /rpm-ostree \
+            --output "containers-storage:[overlay@/run/host-container-storage+/run/rpm-ostree-storage]localhost/${IMAGE_NAME}:latest"
+          podman tag "${IMAGE_NAME}:latest" "${IMAGE_NAME}:${DATE_TAG}" "${IMAGE_NAME}:${SHORT_SHA}"
+          echo "레이어 수: $(podman inspect --format '{{len .RootFS.Layers}}' "${IMAGE_NAME}:latest")"
 
       - name: 이미지 검사
         run: |
@@ -94,6 +111,8 @@ jobs:
             test -f /usr/share/konsole/Dalbit.profile
             test -f /usr/share/konsole/DalbitDark.colorscheme
             grep -q "DefaultProfile=Dalbit.profile" /etc/xdg/konsolerc
+            rpm -q kde-connect
+            firewall-offline-cmd --list-services | grep -q kdeconnect
             grep -q "images_dark/3840x2160.svg" /etc/xdg/kscreenlockerrc
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
             fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"

@@ -22,6 +22,8 @@ PACKAGES=(
     libva-utils
     # 부팅 화면(Plymouth) script 테마 실행용
     plymouth-plugin-script
+    # 휴대폰 연동 (파일 전송, 알림, 클립보드 공유)
+    kde-connect
     # 도구
     fastfetch
     htop
@@ -258,6 +260,17 @@ jq . "$POLICY"
 ### 4. 실행 권한
 chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme \
     /usr/libexec/dalbit/grub-hide-menu /usr/libexec/dalbit/update-notify
+
+# KDE Connect: 같은 Wi-Fi의 휴대폰이 노트북을 찾을 수 있도록 방화벽에서 해당 서비스만 허용
+if command -v firewall-offline-cmd >/dev/null; then
+    echo "방화벽 기본 영역: $(firewall-offline-cmd --get-default-zone)"
+    if firewall-offline-cmd --get-services | tr ' ' '\n' | grep -qx kdeconnect; then
+        firewall-offline-cmd --add-service=kdeconnect
+        firewall-offline-cmd --list-services
+    else
+        echo "⚠️ firewalld에 kdeconnect 서비스 정의 없음"
+    fi
+fi
 
 # 터미널(Konsole) 기본 프로필: Dalbit (기존 설정은 유지하고 값만 추가)
 kwriteconfig6 --file /etc/xdg/konsolerc --group "Desktop Entry" --key DefaultProfile Dalbit.profile
