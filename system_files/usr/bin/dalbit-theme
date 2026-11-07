@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Dalbit OS 테마를 현재 사용자에게 적용
-#   dalbit-theme                  지금 모양·배치 그대로 다시 적용 (처음이면 다크 · Windows식)
+#   dalbit-theme                  지금 모양·배치 그대로 다시 적용 (처음이면 라이트 · 맥식)
 #   dalbit-theme dark | light     다크 (Dusk) / 라이트 (Mist) — 배치는 그대로 유지
 #   --windows                     Windows식 배치: 아래 작업표시줄 (가운데 시작 버튼 + 고정 앱, 오른쪽 트레이 · 시계)
 #   --mac                         맥식 배치: 위쪽 메뉴 막대(달 메뉴 · 앱 메뉴 · 트레이 · 시계) + 아래 독, 동그란 창 버튼
@@ -18,8 +18,10 @@ BUTTONS_FILE="$STATE_DIR/window-buttons"
 # 지금 상태: 모양은 색 구성표, 배치는 전역 테마 이름으로 판단
 cur_scheme=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)
 cur_lnf=$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage 2>/dev/null || true)
-case "$cur_scheme" in *Light*) MODE=light ;; *) MODE=dark ;; esac
-case "$cur_lnf" in *mac*) STYLE=mac ;; *) STYLE=windows ;; esac
+# 값이 없으면 Dalbit 기본값(라이트 · 맥식)
+case "$cur_scheme" in *Dark*) MODE=dark ;; *) MODE=light ;; esac
+# (KDE 기본 전역 테마는 아래 작업표시줄이라 Windows식으로 봄)
+case "$cur_lnf" in *mac*|"") STYLE=mac ;; *) STYLE=windows ;; esac
 BUTTONS=$(cat "$BUTTONS_FILE" 2>/dev/null || echo right)
 CUR_STYLE=$STYLE
 
@@ -90,10 +92,12 @@ if [ "$STYLE" = mac ]; then
 else
     kwriteconfig6 "${DECO_GROUP[@]}" --key library org.kde.breeze
     kwriteconfig6 "${DECO_GROUP[@]}" --key theme Breeze
-    # KDE 기본값으로 되돌림
-    for k in ButtonsOnLeft ButtonsOnRight BorderSize BorderSizeAuto; do
-        kwriteconfig6 "${DECO_GROUP[@]}" --key "$k" --delete
-    done
+    # KDE 기본 창 버튼과 테두리. 값을 지우면 시스템 기본값(맥식 창 모양)을 물려받으므로 직접 적음
+    # (왼쪽: 창 메뉴 · 모든 데스크톱 / 오른쪽: 도움말 · 최소화 · 최대화 · 닫기)
+    kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnLeft MS
+    kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnRight HIAX
+    kwriteconfig6 "${DECO_GROUP[@]}" --key BorderSize Normal
+    kwriteconfig6 "${DECO_GROUP[@]}" --key BorderSizeAuto true
 fi
 dbus-send --session --type=method_call --dest=org.kde.KWin /KWin org.kde.KWin.reconfigure 2>/dev/null || true
 

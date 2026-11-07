@@ -5,9 +5,10 @@ shopt -s nullglob
 
 # 모양: 현재 전역 테마
 lnf=$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage 2>/dev/null || true)
-case "$lnf" in *light*) mode=light ;; *) mode=dark ;; esac
+# 값이 없으면 Dalbit 기본값(라이트 · 맥식)
+case "$lnf" in *light*|"") mode=light ;; *) mode=dark ;; esac
 # 배치: Windows식(아래 작업표시줄) / 맥식(위 메뉴 막대 + 독)
-case "$lnf" in *mac*) layout=mac ;; *) layout=windows ;; esac
+case "$lnf" in *mac*|"") layout=mac ;; *) layout=windows ;; esac
 
 # 전원 프로필 (tuned-ppd, KDE 배터리 위젯과 같은 시스템 기능)
 prof=$(busctl get-property net.hadess.PowerProfiles /net/hadess/PowerProfiles net.hadess.PowerProfiles ActiveProfile 2>/dev/null | sed -E 's/^s "(.*)"$/\1/')

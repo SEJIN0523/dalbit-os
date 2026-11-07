@@ -17,26 +17,29 @@ system_files/                  # 이미지의 / 에 그대로 복사되는 파�
   usr/share/plasma/            # 전역 테마 · 위젯(시계, 컨트롤 센터, 달 메뉴, 시작하기)
   usr/share/dalbit/flatpaks.list
 .github/workflows/build.yml    # GitHub Actions 자동 빌드
-docs/                          # 단계별 가이드, 프로젝트 현황(PROJECT_STATUS.md)
+docs/                          # 단계별 가이드, 프로젝트 현황, 디자인 기준
 ```
 
 ## 최적화
 
 Zen 4 + Radeon 760M에 맞춘 zram, 메모리 튜닝, 강력 절전 모드, 노트북 배터리 보호가 들어 있습니다.
+파일 검색 색인은 파일 이름만 하도록 줄여 두었습니다(시스템 설정 → 파일 검색에서 바꿀 수 있음).
 자세한 내용은 [`docs/02-optimization.md`](docs/02-optimization.md), 설치 후 점검은 `dalbit-check`.
 
 ## 모양과 배치
 
 컨트롤 센터(작업표시줄의 Dalbit 마크)의 **모양**에서 바꾸거나, 터미널에서 `dalbit-theme`을 씁니다.
 
-| | Windows식 배치 (기본) | 맥식 배치 |
+기본은 **맥식 배치 + 라이트(Mist)** 입니다. 색 · 글꼴 · 아이콘 같은 디자인 기준은 [`docs/DESIGN.md`](docs/DESIGN.md)에 있습니다.
+
+| | 맥식 배치 (기본) | Windows식 배치 |
 |---|---|---|
-| 작업표시줄 | 아래, 가운데 시작 버튼 + 고정 앱 | 위쪽 메뉴 막대 + 아래 독 |
-| 왼쪽 위 | — | 오늘의 달 모양 + 지금 쓰는 앱 이름 (누르면 시스템 메뉴) |
-| 창 버튼 | KDE 기본 | 동그란 버튼, 오른쪽 (최소화 · 최대화 · 닫기) |
+| 작업표시줄 | 위쪽 메뉴 막대 + 아래 독 | 아래, 가운데 시작 버튼 + 고정 앱 |
+| 왼쪽 위 | 오늘의 달 모양 + 지금 쓰는 앱 이름 (누르면 시스템 메뉴) | — |
+| 창 버튼 | 동그란 버튼, 오른쪽 (최소화 · 최대화 · 닫기) | KDE 기본 |
 
 ```bash
-dalbit-theme light          # 라이트로 (배치는 그대로)
+dalbit-theme dark           # 다크로 (배치는 그대로)
 dalbit-theme --mac          # 맥식 배치로
 dalbit-theme --windows      # Windows식 배치로
 dalbit-theme --buttons-left # 맥식 배치의 창 버튼을 왼쪽으로 (맥 순서)

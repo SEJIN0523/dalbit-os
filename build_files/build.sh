@@ -140,7 +140,8 @@ kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Website "
 kwriteconfig6 --file /etc/xdg/kcm-about-distrorc --group General --key Variant "Zen 4 Edition"
 cat /etc/xdg/kcm-about-distrorc
 
-### 2-4. Dalbit 테마 (다크 + 하늘색 강조) — 새 사용자 기본값
+### 2-4. Dalbit 테마 — 새 사용자 기본값: 맥식 배치 + 라이트(Mist)
+# 디자인 기준은 docs/DESIGN.md. 기본값을 바꾸면 dalbit-theme · cc-status의 대체값과 워크플로 검사도 함께 바꿀 것
 WALL=/usr/share/wallpapers/Dalbit
 # 부팅·잠금·로그인은 테마와 상관없이 항상 다크 그림
 WALL_DARK_IMG="file://$WALL/contents/images_dark/3840x2160.svg"
@@ -148,17 +149,29 @@ test -f /usr/share/color-schemes/DalbitDark.colors
 test -f /usr/share/color-schemes/DalbitLight.colors
 test -f /usr/share/plasma/look-and-feel/org.dalbit.desktop/metadata.json
 test -f /usr/share/plasma/look-and-feel/org.dalbit.light.desktop/metadata.json
+test -f /usr/share/plasma/look-and-feel/org.dalbit.mac.desktop/metadata.json
+test -f /usr/share/plasma/look-and-feel/org.dalbit.mac.light.desktop/metadata.json
 test -f /usr/share/icons/dalbit-dark/index.theme
 test -f /usr/share/icons/dalbit-light/index.theme
 gtk-update-icon-cache -f /usr/share/icons/dalbit-dark 2>/dev/null || true
 gtk-update-icon-cache -f /usr/share/icons/dalbit-light 2>/dev/null || true
 echo "== 기존 /etc/xdg/kdeglobals"; cat /etc/xdg/kdeglobals 2>/dev/null || echo "(없음)"
-kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key LookAndFeelPackage org.dalbit.desktop
-kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme DalbitDark
-kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme dalbit-dark
-# Plasma의 낮/밤 자동 전환 기능이 있는 경우 쓸 라이트/다크 테마 짝
-kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultLightLookAndFeel org.dalbit.light.desktop
-kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultDarkLookAndFeel org.dalbit.desktop
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key LookAndFeelPackage org.dalbit.mac.light.desktop
+kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key ColorScheme DalbitLight
+kwriteconfig6 --file /etc/xdg/kdeglobals --group Icons --key Theme dalbit-light
+# Plasma의 낮/밤 자동 전환 기능이 있는 경우 쓸 라이트/다크 테마 짝 (배치는 맥식 유지)
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultLightLookAndFeel org.dalbit.mac.light.desktop
+kwriteconfig6 --file /etc/xdg/kdeglobals --group KDE --key DefaultDarkLookAndFeel org.dalbit.mac.desktop
+# 맥식 배치의 창 모양: 동그란 버튼(오른쪽, 최소화 · 최대화 · 닫기), 테두리 없음
+# (전역 테마의 defaults는 새 계정에 자동 적용되지 않으므로 시스템 기본값으로 직접 지정)
+KDECO=(--file /etc/xdg/kwinrc --group org.kde.kdecoration2)
+kwriteconfig6 "${KDECO[@]}" --key library org.kde.kwin.aurorae
+kwriteconfig6 "${KDECO[@]}" --key theme __aurorae__svg__DalbitMacLight
+kwriteconfig6 "${KDECO[@]}" --key ButtonsOnLeft ""
+kwriteconfig6 "${KDECO[@]}" --key ButtonsOnRight IAX
+kwriteconfig6 "${KDECO[@]}" --key BorderSize None
+kwriteconfig6 "${KDECO[@]}" --key BorderSizeAuto false
+echo "== 변경 후 /etc/xdg/kwinrc"; cat /etc/xdg/kwinrc
 # 글꼴 (Qt6 형식: 이름,크기,-1,5,굵기,...)
 FONT_UI="Pretendard,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file /etc/xdg/kdeglobals --group General --key font "$FONT_UI"
@@ -206,6 +219,13 @@ for w in org.kde.plasma.appmenu org.kde.plasma.kickerdash org.kde.plasma.margins
 done
 # 달 메뉴가 쓰는 작업 관리자 QML 부품
 ls -d /usr/lib64/qt6/qml/org/kde/taskmanager >/dev/null
+
+### 2-4c. 파일 검색 색인(Baloo): 파일 이름만 색인
+# 파일 내용까지 색인하면 처음 몇 시간이나 파일을 많이 받을 때 CPU·디스크를 오래 씀.
+# 이름 검색(시작 메뉴 · 파일 탐색기)은 그대로 동작. 사용자가 시스템 설정 → 파일 검색에서 다시 켤 수 있음.
+echo "== 기존 /etc/xdg/baloofilerc"; cat /etc/xdg/baloofilerc 2>/dev/null || echo "(없음)"
+kwriteconfig6 --file /etc/xdg/baloofilerc --group "Basic Settings" --key "only basic indexing" true
+echo "== 변경 후 /etc/xdg/baloofilerc"; cat /etc/xdg/baloofilerc
 
 ### 2-5. 빌드 중에만 필요한 도구 (기반 이미지에 없던 것만 설치했다가 마지막에 제거)
 TEMP_PKGS=()

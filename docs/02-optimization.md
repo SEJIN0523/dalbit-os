@@ -13,6 +13,7 @@ Fedora 기본 커널을 그대로 사용하므로 **Secure Boot를 켠 채로** 
 | CPU 전력 | amd-pstate EPP + tuned-ppd (Fedora 기본, 배터리 시 자동 절전) | — |
 | 영상 가속 | VA-API (Universal Blue 기본 포함), `vainfo`로 확인 | — |
 | NPU | 커널 `amdxdna` 드라이버 (Fedora 기본) | — |
+| 파일 검색 색인 | 파일 이름만 색인(내용 색인 끔). 시스템 설정 → 파일 검색에서 다시 켤 수 있음 | `/etc/xdg/baloofilerc` (build.sh 2-4c) |
 
 ## 점검
 설치 후 터미널에서 실행합니다.
@@ -31,4 +32,4 @@ dalbit-check
 | 기기 | 구성 | 비고 |
 |---|---|---|
 | 8600G | DDR5-4800 12GB × 2 | 듀얼 채널 24GB |
-| 노트북 | DDR5-5600 8GB × 2 (예정) | 같은 모듈 2개로 듀얼 채널 필수. 760M 성능에 직결 |
+| 노트북 | DDR5-5600 8GB × 2 | 듀얼 채널 16GB (2026-11 교체 완료). 760M 성능에 직결 |

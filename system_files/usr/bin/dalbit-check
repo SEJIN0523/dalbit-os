@@ -39,6 +39,14 @@ if [ -n "$zram" ]; then ok "zram" "$zram"; else warn "zram" "비활성"; fi
 ok "swappiness" "$(cat /proc/sys/vm/swappiness)"
 echo
 
+echo "[파일 검색]"
+indexing=$(kreadconfig6 --file baloofilerc --group "Basic Settings" --key "Indexing-Enabled" 2>/dev/null)
+basic=$(kreadconfig6 --file baloofilerc --group "Basic Settings" --key "only basic indexing" 2>/dev/null)
+if [ "$indexing" = false ]; then ok "파일 색인" "꺼짐"
+elif [ "$basic" = true ]; then ok "파일 색인" "파일 이름만"
+else warn "파일 색인" "파일 내용까지 — 시스템 설정 → 파일 검색에서 바꿀 수 있음"; fi
+echo
+
 echo "[GPU / 영상]"
 for c in /sys/class/drm/card*/device; do
     [ -r "$c/mem_info_vram_total" ] || continue
