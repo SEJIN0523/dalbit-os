@@ -38,9 +38,11 @@ title.SetY(title_y);
 title.SetZ(10);
 title.SetOpacity(0);
 
-// 진행 막대
+// 작업 중 표시: 얇은 막대 안에서 짧은 빛이 좌우로 흐름
+// (Plymouth의 진행률은 이전 부팅 시간으로 추정한 값이라 실제와 맞지 않아 쓰지 않음)
 bar_w = 84;
 bar_h = 1;
+seg_w = 26;
 bar_x = cx - bar_w / 2;
 bar_y = title_y + title_img.GetHeight() + 20;
 bar_src = Image("bar.png");
@@ -50,9 +52,9 @@ bar_bg.SetY(bar_y);
 bar_bg.SetZ(10);
 bar_bg.SetOpacity(0);
 bar_fg = Sprite();
-bar_fg.SetX(bar_x);
 bar_fg.SetY(bar_y);
 bar_fg.SetZ(11);
+bar_fg.SetOpacity(0);
 
 global.t = 0;
 fun refresh_callback() {
@@ -73,18 +75,30 @@ fun refresh_callback() {
     star.SetOpacity(e * (0.775 + 0.225 * s));
     title.SetOpacity(e * 0.9);
     bar_bg.SetOpacity(e * 0.15);
+
+    // 흐르는 빛: 약 1.8초 주기, 양 끝에서 천천히 (ease-in-out), 막대 밖으로는 잘라서 그림
+    cycles = global.t / 90;
+    phase = cycles - Math.Int(cycles);
+    k = 0.5 - 0.5 * Math.Cos(3.14159 * phase);
+    head = bar_x - seg_w + (bar_w + seg_w) * k;
+    left = head;
+    if (left < bar_x) {
+        left = bar_x;
+    }
+    right = head + seg_w;
+    if (right > bar_x + bar_w) {
+        right = bar_x + bar_w;
+    }
+    w = Math.Int(right - left);
+    if (w >= 1) {
+        bar_fg.SetImage(bar_src.Scale(w, bar_h));
+        bar_fg.SetX(left);
+        bar_fg.SetOpacity(e * 0.9);
+    } else {
+        bar_fg.SetOpacity(0);
+    }
 }
 Plymouth.SetRefreshFunction(refresh_callback);
-
-fun progress_callback(duration, progress) {
-    w = Math.Int(bar_w * progress);
-    if (w < 1) {
-        w = 1;
-    }
-    bar_fg.SetImage(bar_src.Scale(w, bar_h));
-    bar_fg.SetOpacity(0.9);
-}
-Plymouth.SetBootProgressFunction(progress_callback);
 
 // 디스크 암호 입력 (암호화를 쓰는 경우)
 prompt_sprite = Sprite();
