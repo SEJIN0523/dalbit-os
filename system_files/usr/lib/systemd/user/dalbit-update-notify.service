@@ -1,0 +1,7 @@
+[Unit]
+Description=Dalbit OS - notify when an update is ready
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=-/usr/libexec/dalbit/update-notify

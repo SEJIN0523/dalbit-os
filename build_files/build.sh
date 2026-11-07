@@ -256,11 +256,17 @@ install -m644 /tmp/policy.json "$POLICY"
 jq . "$POLICY"
 
 ### 4. 실행 권한
-chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme /usr/libexec/dalbit/grub-hide-menu
+chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme \
+    /usr/libexec/dalbit/grub-hide-menu /usr/libexec/dalbit/update-notify
+
+# 터미널(Konsole) 기본 프로필: Dalbit (기존 설정은 유지하고 값만 추가)
+kwriteconfig6 --file /etc/xdg/konsolerc --group "Desktop Entry" --key DefaultProfile Dalbit.profile
 
 ### 5. 서비스
 systemctl enable dalbit-battery-init.service
 systemctl enable dalbit-grub-hide-menu.service
+# 사용자 세션: 업데이트 준비 알림 (모든 사용자)
+systemctl --global enable dalbit-update-notify.timer
 
 ### 6. 정리
 dnf5 clean all

@@ -1,0 +1,9 @@
+[Unit]
+Description=Dalbit OS - check for a staged update every hour
+
+[Timer]
+OnStartupSec=5min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

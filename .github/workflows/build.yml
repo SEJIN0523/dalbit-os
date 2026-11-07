@@ -85,6 +85,15 @@ jobs:
             test -f /usr/share/fcitx5/themes/dalbit-dark/theme.conf
             test -f /usr/share/fcitx5/themes/dalbit-light/theme.conf
             grep -q "DarkTheme=dalbit-dark" /etc/xdg/fcitx5/conf/classicui.conf
+            grep -q "^VERSION_ID=44" /usr/lib/os-release
+            test -f /etc/xdg/autostart/dalbit-setup.desktop
+            bash -n /usr/bin/dalbit-setup
+            test -x /usr/libexec/dalbit/update-notify
+            bash -n /usr/libexec/dalbit/update-notify
+            systemctl --global is-enabled dalbit-update-notify.timer
+            test -f /usr/share/konsole/Dalbit.profile
+            test -f /usr/share/konsole/DalbitDark.colorscheme
+            grep -q "DefaultProfile=Dalbit.profile" /etc/xdg/konsolerc
             grep -q "images_dark/3840x2160.svg" /etc/xdg/kscreenlockerrc
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
             fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"

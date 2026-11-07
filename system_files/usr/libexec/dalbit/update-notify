@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Dalbit OS: 새 업데이트가 받아져 있으면(다음 부팅 때 적용될 배포가 있으면) 한 번 알림
+set -euo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dalbit"
+SEEN="$STATE_DIR/notified-staged"
+mkdir -p "$STATE_DIR"
+
+status=$(rpm-ostree status --json 2>/dev/null) || exit 0
+staged=$(jq -r '[.deployments[] | select(.staged == true)][0].checksum // empty' <<<"$status")
+[ -n "$staged" ] || exit 0
+[ "$(cat "$SEEN" 2>/dev/null)" = "$staged" ] && exit 0
+
+version=$(jq -r '[.deployments[] | select(.staged == true)][0].version // empty' <<<"$status")
+notify-send --app-name="Dalbit OS" --icon=dalbit \
+    "업데이트 준비 완료" \
+    "다시 시작하면 새 Dalbit${version:+ ($version)}이 적용됩니다. 문제가 생기면 부팅 메뉴(Esc)에서 이전 버전을 고를 수 있습니다." || true
+echo "$staged" > "$SEEN"

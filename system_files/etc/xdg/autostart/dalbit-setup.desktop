@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Dalbit Setup
+Name[ko]=Dalbit 기본 앱 설치
+Comment=Install Dalbit OS default apps when the app list changes
+Exec=/usr/bin/dalbit-setup --auto
+Icon=dalbit
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2
