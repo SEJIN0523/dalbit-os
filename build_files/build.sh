@@ -233,8 +233,15 @@ else
 fi
 DOLPHIN_DESKTOP=/usr/share/applications/org.kde.dolphin.desktop
 test -f "$DOLPHIN_DESKTOP"
-kwriteconfig6 --file "$DOLPHIN_DESKTOP" --group "Desktop Entry" --key "Name[ko]" "파일 탐색기"
-grep -n '^Name\[ko\]' "$DOLPHIN_DESKTOP"
+# kwriteconfig6는 Name[ko] 같은 언어별 키를 쓰지 못하므로 줄을 직접 바꿈 (없으면 [Desktop Entry] 바로 아래에 추가)
+if grep -q '^Name\[ko\]=' "$DOLPHIN_DESKTOP"; then
+    sed -i 's/^Name\[ko\]=.*/Name[ko]=파일 탐색기/' "$DOLPHIN_DESKTOP"
+else
+    sed -i '/^\[Desktop Entry\]$/a Name[ko]=파일 탐색기' "$DOLPHIN_DESKTOP"
+fi
+grep -n '^Name\[ko\]=' "$DOLPHIN_DESKTOP" > /tmp/dolphin-name.txt || true
+cat /tmp/dolphin-name.txt
+grep -q '^Name\[ko\]=파일 탐색기$' "$DOLPHIN_DESKTOP"
 
 ### 2-7. 부팅 화면 (Plymouth) — 초기 부팅 파일(initramfs)도 다시 생성
 PLY_SRC=/ctx/build_files/plymouth
