@@ -24,6 +24,8 @@ PACKAGES=(
     plymouth-plugin-script
     # 휴대폰 연동 (파일 전송, 알림, 클립보드 공유)
     kde-connect
+    # 작업 관리자 (Ctrl+Shift+Esc)
+    plasma-systemmonitor
     # 도구
     fastfetch
     htop
@@ -278,6 +280,13 @@ if command -v firewall-offline-cmd >/dev/null; then
         echo "⚠️ firewalld에 kdeconnect 서비스 정의 없음"
     fi
 fi
+
+# 작업 관리자: Windows처럼 Ctrl+Shift+Esc로 시스템 모니터 열기
+SYSMON_DESKTOP=/usr/share/applications/org.kde.plasma-systemmonitor.desktop
+test -f "$SYSMON_DESKTOP"
+grep -n '^X-KDE-Shortcuts' "$SYSMON_DESKTOP" || echo "(기존 단축키 없음)"
+kwriteconfig6 --file "$SYSMON_DESKTOP" --group "Desktop Entry" --key X-KDE-Shortcuts "Ctrl+Shift+Esc"
+grep -n '^X-KDE-Shortcuts' "$SYSMON_DESKTOP"
 
 # 터미널(Konsole) 기본 프로필: Dalbit (기존 설정은 유지하고 값만 추가)
 kwriteconfig6 --file /etc/xdg/konsolerc --group "Desktop Entry" --key DefaultProfile Dalbit.profile
