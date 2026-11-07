@@ -198,9 +198,11 @@ test -f /usr/share/plasma/plasmoids/org.dalbit.moon/contents/ui/main.qml
 # 맥식 배치가 쓰는 KDE 기본 위젯 (앱 메뉴, 앱 모음, 여백 구분선)
 for w in org.kde.plasma.appmenu org.kde.plasma.kickerdash org.kde.plasma.marginsseparator org.kde.plasma.icontasks; do
     # QML 위젯은 plasmoids 폴더에, C++ 위젯은 플러그인(.so)으로 설치됨
-    ls -d "/usr/share/plasma/plasmoids/$w" "/usr/lib64/qt6/plugins/plasma/applets/$w.so" 2>/dev/null | grep -q . || \
-        { echo "⚠️ 맥식 배치 위젯을 예상 위치에서 찾지 못함: $w (설치 위치 확인용 목록)"
-          ls /usr/share/plasma/plasmoids /usr/lib64/qt6/plugins/plasma/applets 2>/dev/null | grep -E 'appmenu|kicker|separator|tasks' || true; }
+    if [ ! -e "/usr/share/plasma/plasmoids/$w" ] && [ ! -e "/usr/lib64/qt6/plugins/plasma/applets/$w.so" ]; then
+        echo "❌ 맥식 배치에 필요한 위젯 없음: $w"
+        ls /usr/share/plasma/plasmoids /usr/lib64/qt6/plugins/plasma/applets 2>/dev/null | grep -E 'appmenu|kicker|separator|tasks' || true
+        exit 1
+    fi
 done
 # 달 메뉴가 쓰는 작업 관리자 QML 부품
 ls -d /usr/lib64/qt6/qml/org/kde/taskmanager >/dev/null
