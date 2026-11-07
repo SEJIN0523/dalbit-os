@@ -293,7 +293,8 @@ jq . "$POLICY"
 chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme \
     /usr/libexec/dalbit/grub-hide-menu /usr/libexec/dalbit/update-notify \
     /usr/libexec/dalbit/cc-status /usr/libexec/dalbit/cc-power /usr/libexec/dalbit/battery-set \
-    /usr/libexec/dalbit/welcome-once /usr/libexec/dalbit/cc-stats /usr/libexec/dalbit/cc-phone \n    /usr/libexec/dalbit/tray-tidy
+    /usr/libexec/dalbit/welcome-once /usr/libexec/dalbit/cc-stats /usr/libexec/dalbit/cc-phone \
+    /usr/libexec/dalbit/tray-tidy
 
 # 컨트롤 센터 · 시작하기 위젯이 쓰는 명령이 이미지에 있는지 확인
 for c in plasmawindowed kreadconfig6 kwriteconfig6 busctl pkexec kdeconnect-cli kdeconnect-app dbus-send konsole kdialog plasma-systemmonitor; do
