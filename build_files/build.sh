@@ -285,7 +285,11 @@ fi
 SYSMON_DESKTOP=/usr/share/applications/org.kde.plasma-systemmonitor.desktop
 test -f "$SYSMON_DESKTOP"
 grep -n '^X-KDE-Shortcuts' "$SYSMON_DESKTOP" || echo "(기존 단축키 없음)"
-kwriteconfig6 --file "$SYSMON_DESKTOP" --group "Desktop Entry" --key X-KDE-Shortcuts "Ctrl+Shift+Esc"
+# 원래 단축키(Win+Esc)도 유지
+kwriteconfig6 --file "$SYSMON_DESKTOP" --group "Desktop Entry" --key X-KDE-Shortcuts "Meta+Esc,Ctrl+Shift+Esc"
+
+# 바탕화면 보기: 버튼 대신 화면 오른쪽 아래 모서리로 마우스를 밀면 (Windows 11과 같은 위치) · Win+D
+kwriteconfig6 --file /etc/xdg/kwinrc --group ElectricBorders --key BottomRight ShowDesktop
 grep -n '^X-KDE-Shortcuts' "$SYSMON_DESKTOP"
 
 # 터미널(Konsole) 기본 프로필: Dalbit (기존 설정은 유지하고 값만 추가)

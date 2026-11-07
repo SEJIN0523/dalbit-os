@@ -5,6 +5,7 @@
  */
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Window
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents3
 import org.kde.kirigami as Kirigami
@@ -38,6 +39,17 @@ PlasmoidItem {
     function patch(changes) { st = Object.assign({}, st, changes) }
     function setMode(m) { if (st.mode !== m) { patch({ mode: m }); run("dalbit-theme " + m) } }
     function setPower(p) { patch({ power: p }); run(helpers + "cc-power " + p) }
+    function closeWindow() {
+        const w = winRef ? winRef.Window.window : null
+        if (w) w.close()
+        closeFallback.start()
+    }
+    property Item winRef: null
+    Timer {
+        id: closeFallback
+        interval: 800
+        onTriggered: root.run("pkill -f 'plasmawindowed org.dalbit.welcome'")
+    }
     function setBattery(on) { patch({ battery: on ? "on" : "off" }); run("pkexec " + helpers + "battery-set " + (on ? "on" : "off")) }
 
     Component.onCompleted: refresh()
@@ -121,11 +133,19 @@ PlasmoidItem {
         PlasmaComponents3.Label { id: keyLabel; anchors.centerIn: parent; font: Kirigami.Theme.smallFont }
     }
 
-    fullRepresentation: RowLayout {
+    fullRepresentation: Rectangle {
+        id: winRoot
         Layout.preferredWidth: Kirigami.Units.gridUnit * 40
         Layout.preferredHeight: Kirigami.Units.gridUnit * 26
         Layout.minimumWidth: Kirigami.Units.gridUnit * 30
         Layout.minimumHeight: Kirigami.Units.gridUnit * 22
+        Kirigami.Theme.colorSet: Kirigami.Theme.Window
+        Kirigami.Theme.inherit: false
+        color: Kirigami.Theme.backgroundColor
+        Component.onCompleted: root.winRef = winRoot
+
+        RowLayout {
+        anchors.fill: parent
         spacing: 0
 
         // 왼쪽 단계 목록
@@ -401,11 +421,12 @@ PlasmoidItem {
                         if (root.step < root.steps.length - 1) {
                             root.step += 1
                         } else {
-                            Qt.quit()
+                            root.closeWindow()
                         }
                     }
                 }
             }
+        }
         }
     }
 }

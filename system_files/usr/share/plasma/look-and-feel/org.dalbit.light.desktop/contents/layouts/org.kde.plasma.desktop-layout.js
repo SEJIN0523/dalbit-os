@@ -1,7 +1,7 @@
 // Dalbit OS 기본 바탕화면 · 작업표시줄 배치
 // 화면 아래 떠 있는 작업표시줄:
 //   [여백] 시작 버튼 · 고정 앱(파일, 브라우저, 터미널, 설정) [여백] 시스템 트레이 · Dalbit 컨트롤 센터 · 시계(2줄)
-// (가운데 정렬은 양쪽 확장 여백으로 구현 — Plasma 버전에 상관없이 동작)
+// 바탕화면 보기 버튼은 두지 않음 (화면 오른쪽 아래 모서리 / Win+D)
 
 var DALBIT_WALL = "file:///usr/share/wallpapers/Dalbit/";
 
@@ -21,7 +21,7 @@ for (var j = 0; j < ps.length; j++) {
 
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = Math.round(gridUnit * 2.6);
+panel.height = Math.round(gridUnit * 2.2);
 panel.hiding = "none";
 panel.floating = true;
 
@@ -41,11 +41,34 @@ tasks.writeConfig("launchers", [
 ]);
 
 panel.addWidget("org.kde.plasma.panelspacer");
-panel.addWidget("org.kde.plasma.systemtray");
+
+// 시스템 트레이: 아이콘을 작업표시줄 높이에 맞춰 키우지 않고, 자주 안 쓰는 항목은 ^ 안으로
+var tray = panel.addWidget("org.kde.plasma.systemtray");
+var trayId = tray.readConfig("SystrayContainmentId");
+if (trayId) {
+    var systray = desktopById(trayId);
+    if (systray) {
+        systray.currentConfigGroup = ["General"];
+        systray.writeConfig("scaleIconsToFit", false);
+        systray.writeConfig("iconSpacing", 2);
+        systray.writeConfig("hiddenItems", [
+            "org.kde.plasma.clipboard",
+            "org.kde.plasma.brightness",
+            "org.kde.plasma.bluetooth",
+            "org.kde.kdeconnect",
+            "org.kde.plasma.devicenotifier",
+            "org.kde.plasma.mediacontroller"
+        ]);
+    }
+}
+
 panel.addWidget("org.dalbit.controlcenter");
 
+// 시계: 15:36 / 11월 7일 (토)
 var clock = panel.addWidget("org.kde.plasma.digitalclock");
 clock.currentConfigGroup = ["Appearance"];
+clock.writeConfig("use24hFormat", 2);
 clock.writeConfig("showDate", true);
 clock.writeConfig("dateDisplayFormat", "BelowTime");
-clock.writeConfig("dateFormat", "shortDate");
+clock.writeConfig("dateFormat", "custom");
+clock.writeConfig("customDateFormat", "M월 d일 (ddd)");

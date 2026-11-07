@@ -121,7 +121,10 @@ jobs:
             test -f /etc/xdg/autostart/dalbit-welcome.desktop
             test -f /usr/share/icons/dalbit-dark/apps/scalable/com.google.Chrome.svg
             grep -q "org.dalbit.controlcenter" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
-            grep -q "^X-KDE-Shortcuts=Ctrl+Shift+Esc" /usr/share/applications/org.kde.plasma-systemmonitor.desktop
+            grep -q "^X-KDE-Shortcuts=Meta+Esc,Ctrl+Shift+Esc" /usr/share/applications/org.kde.plasma-systemmonitor.desktop
+            grep -q "BottomRight=ShowDesktop" /etc/xdg/kwinrc
+            grep -q "root.closeWindow()" /usr/share/plasma/plasmoids/org.dalbit.welcome/contents/ui/main.qml
+            if grep -q "showdesktop" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js; then exit 1; fi
 
             grep -q "images_dark/3840x2160.svg" /etc/xdg/kscreenlockerrc
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
