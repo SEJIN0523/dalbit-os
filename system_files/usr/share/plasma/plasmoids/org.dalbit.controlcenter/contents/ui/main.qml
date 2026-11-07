@@ -15,7 +15,7 @@ PlasmoidItem {
 
     readonly property string helpers: "/usr/libexec/dalbit/"
     property var st: ({
-        mode: "dark", layout: "windows", power: "balanced", battery: "unsupported",
+        mode: "light", layout: "mac", power: "balanced", battery: "unsupported",
         capacity: "", batteryStatus: "", phone: "",
         update: "ok", version: "", stagedVersion: ""
     })
@@ -293,14 +293,14 @@ PlasmoidItem {
         RowLayout {
             Layout.fillWidth: true
             spacing: Kirigami.Units.smallSpacing * 2
-            ModeTile { mode: "dark"; label: "다크" }
             ModeTile { mode: "light"; label: "라이트" }
+            ModeTile { mode: "dark"; label: "다크" }
         }
         RowLayout {
             Layout.fillWidth: true
             spacing: Kirigami.Units.smallSpacing
             Repeater {
-                model: [["windows", "Windows식 배치"], ["mac", "맥식 배치"]]
+                model: [["mac", "맥식 배치"], ["windows", "Windows식 배치"]]
                 delegate: PlasmaComponents3.Button {
                     required property var modelData
                     Layout.fillWidth: true
