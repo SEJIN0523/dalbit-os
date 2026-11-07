@@ -15,7 +15,7 @@ PlasmoidItem {
 
     readonly property string helpers: "/usr/libexec/dalbit/"
     property var st: ({
-        mode: "dark", power: "balanced", battery: "unsupported",
+        mode: "dark", layout: "windows", power: "balanced", battery: "unsupported",
         capacity: "", batteryStatus: "", phone: "",
         update: "ok", version: "", stagedVersion: ""
     })
@@ -81,6 +81,14 @@ PlasmoidItem {
         if (st.mode === m) return
         patch({ mode: m })
         run("dalbit-theme " + m)
+    }
+    function setLayout(l) {
+        if (st.layout === l) return
+        patch({ layout: l })
+        root.expanded = false
+        // 배치를 바꾸면 작업표시줄(이 위젯 포함)이 다시 만들어지므로
+        // 작업표시줄과 따로 도는 작업으로 실행해야 끝까지 진행됨
+        run("systemd-run --user --collect --quiet dalbit-theme --" + l)
     }
     function setPower(p) {
         patch({ power: p })
@@ -287,6 +295,21 @@ PlasmoidItem {
             spacing: Kirigami.Units.smallSpacing * 2
             ModeTile { mode: "dark"; label: "다크" }
             ModeTile { mode: "light"; label: "라이트" }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Kirigami.Units.smallSpacing
+            Repeater {
+                model: [["windows", "Windows식 배치"], ["mac", "맥식 배치"]]
+                delegate: PlasmaComponents3.Button {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    text: modelData[1]
+                    checkable: true
+                    checked: root.st.layout === modelData[0]
+                    onClicked: root.setLayout(modelData[0])
+                }
+            }
         }
 
         // 전원

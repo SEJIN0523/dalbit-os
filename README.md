@@ -12,6 +12,9 @@ Containerfile                  # OS 이미지 정의
 build_files/build.sh           # 패키지 설치 및 설정 스크립트
 system_files/                  # 이미지의 / 에 그대로 복사되는 파일
   usr/bin/dalbit-setup         # 초기 앱 설치 도구
+  usr/bin/dalbit-theme         # 모양(다크/라이트)과 배치(Windows식/맥식) 전환
+  usr/share/aurorae/themes/    # 맥식 배치의 동그란 창 버튼
+  usr/share/plasma/            # 전역 테마 · 위젯(시계, 컨트롤 센터, 달 메뉴, 시작하기)
   usr/share/dalbit/flatpaks.list
 .github/workflows/build.yml    # GitHub Actions 자동 빌드
 docs/                          # 단계별 가이드
@@ -21,6 +24,25 @@ docs/                          # 단계별 가이드
 
 Zen 4 + Radeon 760M에 맞춘 zram, 메모리 튜닝, 노트북 화면 절전이 들어 있습니다.
 자세한 내용은 [`docs/02-optimization.md`](docs/02-optimization.md), 설치 후 점검은 `dalbit-check`.
+
+## 모양과 배치
+
+컨트롤 센터(작업표시줄의 Dalbit 마크)의 **모양**에서 바꾸거나, 터미널에서 `dalbit-theme`을 씁니다.
+
+| | Windows식 배치 (기본) | 맥식 배치 |
+|---|---|---|
+| 작업표시줄 | 아래, 가운데 시작 버튼 + 고정 앱 | 위쪽 메뉴 막대 + 아래 독 |
+| 왼쪽 위 | — | 오늘의 달 모양 + 지금 쓰는 앱 이름 (누르면 시스템 메뉴) |
+| 창 버튼 | KDE 기본 | 동그란 버튼, 오른쪽 (최소화 · 최대화 · 닫기) |
+
+```bash
+dalbit-theme light          # 라이트로 (배치는 그대로)
+dalbit-theme --mac          # 맥식 배치로
+dalbit-theme --windows      # Windows식 배치로
+dalbit-theme --buttons-left # 맥식 배치의 창 버튼을 왼쪽으로 (맥 순서)
+```
+
+배치를 바꾸면 작업표시줄 위젯이 새로 만들어집니다. 창 장식 SVG는 `tools/gen-mac-decorations.py`로 만듭니다.
 
 ## 로드맵
 

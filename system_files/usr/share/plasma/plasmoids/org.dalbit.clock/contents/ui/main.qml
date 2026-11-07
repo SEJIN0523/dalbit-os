@@ -33,13 +33,36 @@ PlasmoidItem {
 
     compactRepresentation: MouseArea {
         id: compact
-        Layout.minimumWidth: labels.implicitWidth + Kirigami.Units.smallSpacing * 2
+        // 얇은 막대(맥 스타일 위쪽 메뉴 막대)에서는 날짜와 시간을 한 줄로
+        readonly property bool oneLine: height < Kirigami.Units.gridUnit * 2
+        Layout.minimumWidth: (oneLine ? line.implicitWidth : labels.implicitWidth) + Kirigami.Units.smallSpacing * 2
         Layout.preferredWidth: Layout.minimumWidth
         hoverEnabled: true
         onClicked: root.expanded = !root.expanded
 
+        Row {
+            id: line
+            visible: compact.oneLine
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: Kirigami.Units.smallSpacing
+            spacing: Kirigami.Units.smallSpacing * 2
+
+            PlasmaComponents3.Label {
+                text: root.now.toLocaleDateString(Qt.locale("ko_KR"), "M월 d일 (ddd)")
+                font.family: "Pretendard"
+                opacity: compact.containsMouse ? 1 : 0.85
+            }
+            PlasmaComponents3.Label {
+                text: Qt.formatTime(root.now, "HH:mm")
+                font.family: "Pretendard"
+                font.weight: Font.DemiBold
+            }
+        }
+
         Column {
             id: labels
+            visible: !compact.oneLine
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: Kirigami.Units.smallSpacing

@@ -1,34 +1,63 @@
 #!/usr/bin/env bash
-# Dalbit OS 테마를 현재 사용자에게 적용 (작업표시줄 배치는 그대로 유지)
-#   dalbit-theme          다크 (Dusk)
-#   dalbit-theme dark     다크 (Dusk)
-#   dalbit-theme light    라이트 (Mist)
-#   --layout              작업표시줄·바탕화면 배치도 Dalbit 기본으로 초기화
-#                         (가운데 시작 버튼 + 고정 앱, 오른쪽 트레이 · 시계)
+# Dalbit OS 테마를 현재 사용자에게 적용
+#   dalbit-theme                  지금 모양·배치 그대로 다시 적용 (처음이면 다크 · Windows식)
+#   dalbit-theme dark | light     다크 (Dusk) / 라이트 (Mist) — 배치는 그대로 유지
+#   --windows                     Windows식 배치: 아래 작업표시줄 (가운데 시작 버튼 + 고정 앱, 오른쪽 트레이 · 시계)
+#   --mac                         맥식 배치: 위쪽 메뉴 막대(달 메뉴 · 앱 메뉴 · 트레이 · 시계) + 아래 독, 동그란 창 버튼
+#   --buttons-right | --buttons-left
+#                                 맥식 배치의 창 버튼 위치 (기본: 오른쪽, 최소화 · 최대화 · 닫기 순서)
+#   --layout                      지금 배치를 Dalbit 기본으로 초기화
+# 배치를 바꾸거나 초기화하면 작업표시줄 위젯이 새로 만들어집니다. (직접 추가한 위젯은 사라짐)
 set -euo pipefail
 
-MODE=dark
+usage() { echo "사용법: dalbit-theme [dark|light] [--windows|--mac] [--buttons-right|--buttons-left] [--layout]"; exit 2; }
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dalbit"
+BUTTONS_FILE="$STATE_DIR/window-buttons"
+
+# 지금 상태: 모양은 색 구성표, 배치는 전역 테마 이름으로 판단
+cur_scheme=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)
+cur_lnf=$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage 2>/dev/null || true)
+case "$cur_scheme" in *Light*) MODE=light ;; *) MODE=dark ;; esac
+case "$cur_lnf" in *mac*) STYLE=mac ;; *) STYLE=windows ;; esac
+BUTTONS=$(cat "$BUTTONS_FILE" 2>/dev/null || echo right)
+CUR_STYLE=$STYLE
+
 RESET_LAYOUT=0
 for arg in "$@"; do
     case "$arg" in
         dark|light) MODE=$arg ;;
+        --windows) STYLE=windows ;;
+        --mac) STYLE=mac ;;
+        --buttons-right) BUTTONS=right ;;
+        --buttons-left) BUTTONS=left ;;
         --layout) RESET_LAYOUT=1 ;;
-        *) echo "사용법: dalbit-theme [dark|light] [--layout]"; exit 2 ;;
+        *) usage ;;
     esac
 done
+# 배치가 바뀌면 작업표시줄을 새로 만들어야 함
+[ "$STYLE" != "$CUR_STYLE" ] && RESET_LAYOUT=1
+
 WALL=/usr/share/wallpapers/Dalbit
 # 잠금 화면은 테마와 상관없이 항상 다크
 LOCK_IMG="file://$WALL/contents/images_dark/3840x2160.svg"
 
-case "$MODE" in
-    dark)  LNF=org.dalbit.desktop;       SCHEME=DalbitDark;  ICONS=dalbit-dark;  LABEL="다크 (Dusk)" ;;
-    light) LNF=org.dalbit.light.desktop; SCHEME=DalbitLight; ICONS=dalbit-light; LABEL="라이트 (Mist)" ;;
-    *) echo "사용법: dalbit-theme [dark|light]"; exit 2 ;;
+case "$STYLE-$MODE" in
+    windows-dark)  LNF=org.dalbit.desktop ;;
+    windows-light) LNF=org.dalbit.light.desktop ;;
+    mac-dark)      LNF=org.dalbit.mac.desktop ;;
+    mac-light)     LNF=org.dalbit.mac.light.desktop ;;
+    *) usage ;;
 esac
+case "$MODE" in
+    dark)  SCHEME=DalbitDark;  ICONS=dalbit-dark;  DECO=DalbitMac;      LABEL="다크 (Dusk)" ;;
+    light) SCHEME=DalbitLight; ICONS=dalbit-light; DECO=DalbitMacLight; LABEL="라이트 (Mist)" ;;
+esac
+STYLE_LABEL=$([ "$STYLE" = mac ] && echo "맥식 배치" || echo "Windows식 배치")
 
-echo "🌙 Dalbit 테마를 적용합니다: $LABEL"
+echo "🌙 Dalbit 테마를 적용합니다: $LABEL · $STYLE_LABEL"
 if [ "$RESET_LAYOUT" = 1 ]; then
-    echo "   작업표시줄과 바탕화면 배치를 Dalbit 기본으로 초기화합니다. (기존 위젯은 사라집니다)"
+    echo "   작업표시줄과 바탕화면 배치를 새로 만듭니다. (직접 추가한 위젯은 사라집니다)"
     plasma-apply-lookandfeel -a "$LNF" --resetLayout
     RESTART_SHELL=1
 else
@@ -38,6 +67,35 @@ plasma-apply-colorscheme "$SCHEME" || true
 kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
 # 배경화면 패키지 하나에 다크/라이트 그림이 함께 있어 테마에 맞춰 자동 전환됨
 plasma-apply-wallpaperimage "$WALL" || true
+
+# 창 장식과 창 버튼
+DECO_GROUP=(--file kwinrc --group org.kde.kdecoration2)
+if [ "$STYLE" = mac ]; then
+    kwriteconfig6 "${DECO_GROUP[@]}" --key library org.kde.kwin.aurorae
+    kwriteconfig6 "${DECO_GROUP[@]}" --key theme "__aurorae__svg__$DECO"
+    if [ "$BUTTONS" = left ]; then
+        # 맥 순서: 닫기 · 최소화 · 최대화
+        kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnLeft XIA
+        kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnRight ""
+    else
+        # Windows 순서: 최소화 · 최대화 · 닫기
+        kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnLeft ""
+        kwriteconfig6 "${DECO_GROUP[@]}" --key ButtonsOnRight IAX
+    fi
+    # 테두리 없는 창: 크기 조절은 창 가장자리 바깥의 보이지 않는 영역으로
+    kwriteconfig6 "${DECO_GROUP[@]}" --key BorderSize None
+    kwriteconfig6 "${DECO_GROUP[@]}" --key BorderSizeAuto false
+    mkdir -p "$STATE_DIR"
+    echo "$BUTTONS" > "$BUTTONS_FILE"
+else
+    kwriteconfig6 "${DECO_GROUP[@]}" --key library org.kde.breeze
+    kwriteconfig6 "${DECO_GROUP[@]}" --key theme Breeze
+    # KDE 기본값으로 되돌림
+    for k in ButtonsOnLeft ButtonsOnRight BorderSize BorderSizeAuto; do
+        kwriteconfig6 "${DECO_GROUP[@]}" --key "$k" --delete
+    done
+fi
+dbus-send --session --type=method_call --dest=org.kde.KWin /KWin org.kde.KWin.reconfigure 2>/dev/null || true
 
 # 글꼴: 시스템 Pretendard, 고정폭 D2Coding
 FONT_UI="Pretendard,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"

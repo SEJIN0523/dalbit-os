@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Dalbit Mac Light
+Name[ko]=달빛 맥 라이트
+Comment=Dalbit OS window decoration with round buttons
+Comment[ko]=동그란 버튼의 Dalbit 창 장식
+X-KDE-PluginInfo-Author=SEJIN0523
+X-KDE-PluginInfo-Name=DalbitMacLight
+X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-License=GPL-2.0-or-later
+X-KDE-PluginInfo-Website=https://github.com/SEJIN0523/dalbit-os

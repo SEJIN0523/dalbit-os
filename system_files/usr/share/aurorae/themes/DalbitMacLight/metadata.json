@@ -1,0 +1,18 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Description": "Dalbit OS window decoration with round buttons",
+        "Description[ko]": "동그란 버튼의 Dalbit 창 장식",
+        "Id": "DalbitMacLight",
+        "License": "GPL-2.0-or-later",
+        "Name": "Dalbit Mac Light",
+        "Name[ko]": "달빛 맥 라이트",
+        "Version": "1.0",
+        "Website": "https://github.com/SEJIN0523/dalbit-os"
+    },
+    "KPackageStructure": "KWin/Aurorae"
+}

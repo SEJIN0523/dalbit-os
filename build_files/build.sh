@@ -28,6 +28,8 @@ PACKAGES=(
     plasma-systemmonitor
     # 컨트롤 센터 '휴대폰으로 파일 보내기'의 파일 선택 창
     kdialog
+    # 맥식 배치의 동그란 창 버튼 (SVG 창 장식 엔진)
+    aurorae
     # 도구
     fastfetch
     htop
@@ -184,6 +186,25 @@ else
     echo "⚠️ Plasma Login Manager 없음 (로그인 배경은 기본값 유지)"
 fi
 
+### 2-4b. 맥식 배치: 동그란 창 버튼(Aurorae 창 장식) · 달 메뉴 위젯
+for t in DalbitMac DalbitMacLight; do
+    for f in decoration.svg close.svg minimize.svg maximize.svg restore.svg "${t}rc" metadata.desktop; do
+        test -f "/usr/share/aurorae/themes/$t/$f"
+    done
+done
+test -f /usr/share/plasma/look-and-feel/org.dalbit.mac.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+test -f /usr/share/plasma/look-and-feel/org.dalbit.mac.light.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+test -f /usr/share/plasma/plasmoids/org.dalbit.moon/contents/ui/main.qml
+# 맥식 배치가 쓰는 KDE 기본 위젯 (앱 메뉴, 앱 모음, 여백 구분선)
+for w in org.kde.plasma.appmenu org.kde.plasma.kickerdash org.kde.plasma.marginsseparator org.kde.plasma.icontasks; do
+    # QML 위젯은 plasmoids 폴더에, C++ 위젯은 플러그인(.so)으로 설치됨
+    ls -d "/usr/share/plasma/plasmoids/$w" "/usr/lib64/qt6/plugins/plasma/applets/$w.so" 2>/dev/null | grep -q . || \
+        { echo "⚠️ 맥식 배치 위젯을 예상 위치에서 찾지 못함: $w (설치 위치 확인용 목록)"
+          ls /usr/share/plasma/plasmoids /usr/lib64/qt6/plugins/plasma/applets 2>/dev/null | grep -E 'appmenu|kicker|separator|tasks' || true; }
+done
+# 달 메뉴가 쓰는 작업 관리자 QML 부품
+ls -d /usr/lib64/qt6/qml/org/kde/taskmanager >/dev/null
+
 ### 2-5. 빌드 중에만 필요한 도구 (기반 이미지에 없던 것만 설치했다가 마지막에 제거)
 TEMP_PKGS=()
 for p in librsvg2-tools unzip gettext; do
@@ -297,7 +318,8 @@ chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /us
     /usr/libexec/dalbit/tray-tidy
 
 # 컨트롤 센터 · 시작하기 위젯이 쓰는 명령이 이미지에 있는지 확인
-for c in plasmawindowed kreadconfig6 kwriteconfig6 busctl pkexec kdeconnect-cli kdeconnect-app dbus-send konsole kdialog plasma-systemmonitor; do
+for c in plasmawindowed kreadconfig6 kwriteconfig6 busctl pkexec kdeconnect-cli kdeconnect-app dbus-send konsole kdialog plasma-systemmonitor \
+         systemsettings plasma-discover loginctl systemd-run plasma-apply-lookandfeel; do
     command -v "$c" >/dev/null || { echo "❌ 위젯에 필요한 명령 없음: $c"; exit 1; }
 done
 

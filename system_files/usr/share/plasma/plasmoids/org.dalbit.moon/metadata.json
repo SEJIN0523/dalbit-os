@@ -1,0 +1,21 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Category": "Windows and Tasks",
+        "Description": "Today's moon and the current app; opens the Dalbit system menu",
+        "Description[ko]": "오늘의 달 모양과 지금 쓰는 앱 이름, 누르면 Dalbit 시스템 메뉴",
+        "Icon": "dalbit",
+        "Id": "org.dalbit.moon",
+        "License": "GPL-2.0-or-later",
+        "Name": "Dalbit Moon Menu",
+        "Name[ko]": "Dalbit 달 메뉴",
+        "Version": "1.0",
+        "Website": "https://github.com/SEJIN0523/dalbit-os"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

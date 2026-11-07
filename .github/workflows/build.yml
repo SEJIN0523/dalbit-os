@@ -162,6 +162,16 @@ jobs:
             systemctl is-enabled dalbit-grub-hide-menu.service
             bash -n /usr/libexec/dalbit/grub-hide-menu
             bash -n /usr/bin/dalbit-theme
+            # 맥식 배치: 동그란 창 버튼 · 메뉴 막대 + 독 · 달 메뉴
+            rpm -q aurorae
+            test -f /usr/share/aurorae/themes/DalbitMac/decoration.svg
+            test -f /usr/share/aurorae/themes/DalbitMacLight/close.svg
+            test -f /usr/share/aurorae/themes/DalbitMac/DalbitMacrc
+            grep -q "org.dalbit.moon" /usr/share/plasma/look-and-feel/org.dalbit.mac.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            grep -q "SystrayContainmentId" /usr/share/plasma/look-and-feel/org.dalbit.mac.light.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+            grep -q "__aurorae__svg__DalbitMacLight" /usr/share/plasma/look-and-feel/org.dalbit.mac.light.desktop/contents/defaults
+            grep -q -- "--mac" /usr/bin/dalbit-theme
+            grep -q "AppName.qml" /usr/share/plasma/plasmoids/org.dalbit.moon/contents/ui/main.qml
             grep -q "x-scheme-handler/https=com.google.Chrome.desktop" /etc/xdg/mimeapps.list
             grep -q "^power-saver=dalbit-powersave$" /etc/tuned/ppd.conf
             ls /usr/lib/tuned/profiles/dalbit-powersave/tuned.conf /usr/lib/tuned/dalbit-powersave/tuned.conf 2>/dev/null | grep -q .
@@ -177,7 +187,11 @@ jobs:
             for f in /usr/share/plasma/plasmoids/org.dalbit.*/contents/ui/*.qml; do
               "$QMLFORMAT" "$f" > /dev/null
             done
-            for f in /usr/share/plasma/plasmoids/org.dalbit.*/metadata.json; do jq -e .KPlugin.Id "$f" > /dev/null; done
+            for f in /usr/share/plasma/plasmoids/org.dalbit.*/metadata.json /usr/share/plasma/look-and-feel/org.dalbit.*/metadata.json; do jq -e .KPlugin.Id "$f" > /dev/null; done
+            # 창 장식 SVG가 올바른 XML인지
+            for f in /usr/share/aurorae/themes/Dalbit*/*.svg; do
+              python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" "$f"
+            done
             xmllint --noout /usr/share/polkit-1/actions/org.dalbit.battery.policy 2>/dev/null || python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" /usr/share/polkit-1/actions/org.dalbit.battery.policy
           '
 

@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "SEJIN0523"
+            }
+        ],
+        "Description": "Dalbit OS light theme with a top menu bar and dock",
+        "Description[ko]": "메뉴 막대와 독이 있는 Dalbit 라이트 테마",
+        "Id": "org.dalbit.mac.light.desktop",
+        "License": "GPL-2.0-or-later",
+        "Name": "Dalbit Mac Light",
+        "Name[ko]": "달빛 맥 라이트",
+        "Version": "1.0",
+        "Website": "https://github.com/SEJIN0523/dalbit-os"
+    },
+    "X-Plasma-APIVersion": "2"
+}
