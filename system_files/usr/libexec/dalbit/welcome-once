@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Dalbit OS: 첫 로그인 때 "Dalbit 시작하기" 창을 한 번만 띄움
+# 다시 보고 싶으면 컨트롤 센터의 "시작하기" 또는: plasmawindowed org.dalbit.welcome
+set -euo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dalbit"
+DONE="$STATE_DIR/welcome-done"
+[ -e "$DONE" ] && exit 0
+mkdir -p "$STATE_DIR"
+touch "$DONE"
+
+# 바탕화면이 다 뜬 뒤에 열리도록 잠깐 기다림
+sleep 4
+exec plasmawindowed org.dalbit.welcome

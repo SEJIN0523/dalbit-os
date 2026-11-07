@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Dalbit OS: 컨트롤 센터에서 배터리 보호를 켜고 끄는 도우미 (pkexec로 root 실행)
+# 허용하는 인자는 on / off 두 가지뿐 — 정책: /usr/share/polkit-1/actions/org.dalbit.battery.policy
+set -euo pipefail
+case "${1:-}" in
+    on|off) exec /usr/bin/dalbit-battery "$1" ;;
+    *) echo "usage: battery-set on|off" >&2; exit 2 ;;
+esac

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome to Dalbit
+Name[ko]=Dalbit 시작하기
+Comment=First-login setup for Dalbit OS
+Exec=/usr/libexec/dalbit/welcome-once
+Icon=dalbit
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

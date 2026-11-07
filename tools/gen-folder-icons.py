@@ -16,6 +16,9 @@ THEMES = {
         "glyph": "#111317",
         "glyph_opacity": "0.6",
         "mark": "#E8EAEE",
+        "tile": "#2A2D33",
+        "tile_line": "#3A3E46",
+        "line": "#ECEEF2",
     },
     "dalbit-light": {
         "name": "Dalbit Light",
@@ -25,6 +28,9 @@ THEMES = {
         "glyph": "#FFFFFF",
         "glyph_opacity": "0.92",
         "mark": "#2A2E36",
+        "tile": "#E2E5EA",
+        "tile_line": "#D0D4DB",
+        "line": "#1E2127",
     },
 }
 
@@ -95,6 +101,41 @@ def mark_svg(color: str) -> str:
     )
 
 
+# 고정 앱 아이콘: 둥근 사각 타일 + 얇은 선 기호 (24 격자로 그려 64 타일 가운데에 배치)
+APP_GLYPHS = {
+    "folder": '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    "globe": '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17"/>',
+    "terminal": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10l3 2-3 2M12 15h5"/>',
+    "gear": '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+    "bag": '<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+}
+# 아이콘 이름(.desktop 파일의 Icon= 값) → 기호
+APP_ICONS = {
+    "system-file-manager": "folder",
+    "org.kde.dolphin": "folder",
+    "com.google.Chrome": "globe",
+    "google-chrome": "globe",
+    "web-browser": "globe",
+    "utilities-terminal": "terminal",
+    "org.kde.konsole": "terminal",
+    "preferences-system": "gear",
+    "systemsettings": "gear",
+    "plasmadiscover": "bag",
+    "org.kde.discover": "bag",
+}
+
+
+def app_svg(theme: dict, glyph: str) -> str:
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">\n'
+        f'  <rect x="4" y="4" width="56" height="56" rx="15" fill="{theme["tile"]}" '
+        f'stroke="{theme["tile_line"]}" stroke-width="1"/>\n'
+        f'  <g transform="translate(16 16) scale(1.3333)" fill="none" stroke="{theme["line"]}" '
+        f'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{APP_GLYPHS[glyph]}</g>\n'
+        "</svg>\n"
+    )
+
+
 def svg(theme: dict, glyph: str) -> str:
     g = GLYPHS[glyph]
     glyph_group = (
@@ -120,6 +161,8 @@ for theme_id, theme in THEMES.items():
     apps.mkdir(parents=True, exist_ok=True)
     for name in MARK_NAMES:
         (apps / f"{name}.svg").write_text(mark_svg(theme["mark"]), encoding="utf-8", newline="\n")
+    for name, glyph in APP_ICONS.items():
+        (apps / f"{name}.svg").write_text(app_svg(theme, glyph), encoding="utf-8", newline="\n")
     (base / "index.theme").write_text(
         "[Icon Theme]\n"
         f"Name={theme['name']}\n"
@@ -133,4 +176,4 @@ for theme_id, theme in THEMES.items():
         encoding="utf-8",
         newline="\n",
     )
-    print(f"{theme_id}: {len(ICONS)} folder icons, {len(MARK_NAMES)} start icons")
+    print(f"{theme_id}: {len(ICONS)} folder icons, {len(MARK_NAMES)} start icons, {len(APP_ICONS)} app icons")

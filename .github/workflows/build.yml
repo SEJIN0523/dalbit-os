@@ -113,6 +113,27 @@ jobs:
             grep -q "DefaultProfile=Dalbit.profile" /etc/xdg/konsolerc
             rpm -q kde-connect
             firewall-offline-cmd --list-services | grep -q kdeconnect
+            for f in cc-status cc-power battery-set welcome-once; do test -x /usr/libexec/dalbit/$f; bash -n /usr/libexec/dalbit/$f; done
+            bash -n /usr/bin/dalbit-battery
+            test -f /usr/share/polkit-1/actions/org.dalbit.battery.policy
+            test -f /usr/share/plasma/plasmoids/org.dalbit.controlcenter/contents/ui/main.qml
+            test -f /usr/share/plasma/plasmoids/org.dalbit.welcome/contents/ui/main.qml
+            test -f /etc/xdg/autostart/dalbit-welcome.desktop
+            test -f /usr/share/icons/dalbit-dark/apps/scalable/com.google.Chrome.svg
+            grep -q "org.dalbit.controlcenter" /usr/share/plasma/look-and-feel/org.dalbit.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
+
+      # 위젯(QML) 문법 검사: 검사용 컨테이너에만 Qt 도구를 잠깐 설치 (이미지에는 들어가지 않음)
+      - name: 위젯 문법 검사
+        run: |
+          podman run --rm "${IMAGE_NAME}:latest" bash -euxc '
+            dnf5 install -y --setopt=install_weak_deps=False qt6-qtdeclarative-devel > /dev/null
+            QMLFORMAT=$(command -v qmlformat || ls /usr/lib64/qt6/bin/qmlformat)
+            for f in /usr/share/plasma/plasmoids/org.dalbit.*/contents/ui/*.qml; do
+              "$QMLFORMAT" "$f" > /dev/null
+            done
+            for f in /usr/share/plasma/plasmoids/org.dalbit.*/metadata.json; do jq -e .KPlugin.Id "$f" > /dev/null; done
+            xmllint --noout /usr/share/polkit-1/actions/org.dalbit.battery.policy 2>/dev/null || python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" /usr/share/polkit-1/actions/org.dalbit.battery.policy
+          '
             grep -q "images_dark/3840x2160.svg" /etc/xdg/kscreenlockerrc
             grep -q dalbit-logo /etc/xdg/kcm-about-distrorc
             fastfetch --pipe --logo none -s OS | grep -q "Dalbit OS"

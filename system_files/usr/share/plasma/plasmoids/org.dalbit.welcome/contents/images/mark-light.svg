@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <path fill="#2A2E36" d="M124.06 28.08 A100 100 0 1 0 222.82 159.76 A84 84 0 1 1 124.06 28.08 Z"/>
+  <path fill="#2A2E36" transform="translate(176 92) scale(27)" d="M0 -1 C.11 -.11 .11 -.11 1 0 C.11 .11 .11 .11 0 1 C-.11 .11 -.11 .11 -1 0 C-.11 -.11 -.11 -.11 0 -1 Z"/>
+</svg>

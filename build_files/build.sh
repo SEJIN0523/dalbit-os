@@ -259,7 +259,14 @@ jq . "$POLICY"
 
 ### 4. 실행 권한
 chmod +x /usr/bin/dalbit-setup /usr/bin/dalbit-check /usr/bin/dalbit-battery /usr/bin/dalbit-theme \
-    /usr/libexec/dalbit/grub-hide-menu /usr/libexec/dalbit/update-notify
+    /usr/libexec/dalbit/grub-hide-menu /usr/libexec/dalbit/update-notify \
+    /usr/libexec/dalbit/cc-status /usr/libexec/dalbit/cc-power /usr/libexec/dalbit/battery-set \
+    /usr/libexec/dalbit/welcome-once
+
+# 컨트롤 센터 · 시작하기 위젯이 쓰는 명령이 이미지에 있는지 확인
+for c in plasmawindowed kreadconfig6 busctl pkexec kdeconnect-cli kdeconnect-app dbus-send konsole; do
+    command -v "$c" >/dev/null || { echo "❌ 위젯에 필요한 명령 없음: $c"; exit 1; }
+done
 
 # KDE Connect: 같은 Wi-Fi의 휴대폰이 노트북을 찾을 수 있도록 방화벽에서 해당 서비스만 허용
 if command -v firewall-offline-cmd >/dev/null; then

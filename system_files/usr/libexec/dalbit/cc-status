@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Dalbit OS 컨트롤 센터 · 시작하기 위젯용 상태 (JSON 한 줄)
+set -uo pipefail
+shopt -s nullglob
+
+# 모양: 현재 전역 테마
+lnf=$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage 2>/dev/null || true)
+case "$lnf" in *light*) mode=light ;; *) mode=dark ;; esac
+
+# 전원 프로필 (tuned-ppd, KDE 배터리 위젯과 같은 시스템 기능)
+prof=$(busctl get-property net.hadess.PowerProfiles /net/hadess/PowerProfiles net.hadess.PowerProfiles ActiveProfile 2>/dev/null | sed -E 's/^s "(.*)"$/\1/')
+case "$prof" in power-saver) power=save ;; performance) power=perf ;; *) power=balanced ;; esac
+
+# 배터리 보호 / 잔량
+battery=$(/usr/bin/dalbit-battery raw 2>/dev/null || echo unsupported)
+cap=""; bstat=""
+bat=(/sys/class/power_supply/BAT*)
+if [ ${#bat[@]} -gt 0 ]; then
+    cap=$(cat "${bat[0]}/capacity" 2>/dev/null || true)
+    bstat=$(cat "${bat[0]}/status" 2>/dev/null || true)
+fi
+
+# 휴대폰 (KDE Connect: 연결되어 있는 기기 이름)
+phone=$(kdeconnect-cli -a --name-only 2>/dev/null | head -n1 || true)
+
+# 업데이트: 다음 부팅 때 적용될 배포가 있는지
+st=$(rpm-ostree status --json 2>/dev/null || echo '{}')
+booted=$(jq -r '[.deployments[]? | select(.booted == true)][0].version // ""' <<<"$st")
+staged=$(jq -r '[.deployments[]? | select(.staged == true)][0].version // ""' <<<"$st")
+if [ -n "$staged" ]; then update=ready; else update=ok; fi
+
+jq -cn --arg mode "$mode" --arg power "$power" --arg battery "$battery" \
+       --arg cap "$cap" --arg bstat "$bstat" --arg phone "$phone" \
+       --arg update "$update" --arg booted "$booted" --arg staged "$staged" \
+   '{mode:$mode, power:$power, battery:$battery, capacity:$cap, batteryStatus:$bstat,
+     phone:$phone, update:$update, version:$booted, stagedVersion:$staged}'

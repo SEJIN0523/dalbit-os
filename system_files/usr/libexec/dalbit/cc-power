@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Dalbit OS: 전원 모드 변경 (save / balanced / perf)
+# KDE 배터리 위젯과 같은 시스템 기능(power-profiles D-Bus, tuned-ppd)을 사용 — 활성 세션은 권한 불필요
+set -euo pipefail
+case "${1:-}" in
+    save)     p=power-saver ;;
+    balanced) p=balanced ;;
+    perf)     p=performance ;;
+    *) echo "usage: cc-power save|balanced|perf" >&2; exit 2 ;;
+esac
+busctl set-property net.hadess.PowerProfiles /net/hadess/PowerProfiles net.hadess.PowerProfiles ActiveProfile s "$p"

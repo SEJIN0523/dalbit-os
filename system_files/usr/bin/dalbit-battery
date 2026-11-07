@@ -19,19 +19,25 @@ find_control() {
 }
 
 if ! ctl=$(find_control); then
+    # raw: 컨트롤 센터 위젯용 기계 판독 출력
+    [ "${1:-}" = raw ] && { echo unsupported; exit 0; }
     echo "이 기기는 배터리 보호 모드를 지원하지 않습니다. (배터리가 없거나 Lenovo IdeaPad가 아님)"
     exit 1
 fi
 kind=${ctl%%:*}
 file=${ctl#*:}
 
+is_on() {
+    if [ "$kind" = conservation ]; then
+        [ "$(cat "$file")" = 1 ]
+    else
+        grep -q '\[Long_Life\]' "$file"
+    fi
+}
+
 status() {
     local on
-    if [ "$kind" = conservation ]; then
-        [ "$(cat "$file")" = 1 ] && on=1 || on=0
-    else
-        grep -q '\[Long_Life\]' "$file" && on=1 || on=0
-    fi
+    if is_on; then on=1; else on=0; fi
     local bat=(/sys/class/power_supply/BAT*)
     local cap="?" st="?"
     if [ ${#bat[@]} -gt 0 ]; then
@@ -63,6 +69,7 @@ case "${1:-status}" in
     on)      set_mode on;  status ;;
     off)     set_mode off; status ;;
     status)  status ;;
+    raw)     if is_on; then echo on; else echo off; fi ;;
     --init)
         # 첫 부팅 시 1회만 실행 (dalbit-battery-init.service)
         [ "$(id -u)" = 0 ] || exit 1
